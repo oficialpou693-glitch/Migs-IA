@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Migs AI | DeepSeek Edition</title>
+    <title>Migs AI | Groq Edition</title>
     <style>
-        /* CSS - DESIGN DARK FOSCO */
+        /* CSS - DESIGN DARK MINIMALISTA */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
         }
 
         body {
-            background-color: #121212;
+            background-color: #0f0f0f;
             color: #d1d1d1;
             display: flex;
             flex-direction: column;
@@ -23,24 +23,24 @@
         }
 
         header {
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             width: 100%;
-            border-bottom: 1px solid #2a2a2a;
-            background-color: #181818;
+            border-bottom: 1px solid #222;
+            background-color: #151515;
         }
 
         header h1 {
             color: #ffffff;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 500;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
 
         #chat-container {
             flex: 1;
             width: 100%;
-            max-width: 700px;
+            max-width: 750px;
             overflow-y: auto;
             padding: 20px;
             display: flex;
@@ -54,63 +54,72 @@
             border-radius: 8px;
             line-height: 1.5;
             font-size: 15px;
-            animation: fadeIn 0.2s ease;
+            animation: fadeIn 0.2s ease forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .user-message {
             align-self: flex-end;
-            background-color: #2b2b2b;
+            background-color: #2a2a2a;
             color: #ffffff;
+            border-bottom-right-radius: 2px;
         }
 
         .ai-message {
             align-self: flex-start;
-            background-color: #1e1e1e;
+            background-color: #181818;
             color: #d1d1d1;
-            border: 1px solid #2a2a2a;
+            border: 1px solid #252525;
+            border-bottom-left-radius: 2px;
         }
 
         .input-area {
             width: 100%;
-            max-width: 700px;
+            max-width: 750px;
             padding: 20px;
             display: flex;
             gap: 10px;
-            background: #121212;
-            border-top: 1px solid #2a2a2a;
+            background: #0f0f0f;
+            border-top: 1px solid #222;
         }
 
         input {
             flex: 1;
-            background: #1e1e1e;
+            background: #181818;
             border: 1px solid #333;
             padding: 12px;
             border-radius: 6px;
             color: white;
             outline: none;
+            font-size: 15px;
+        }
+
+        input:focus {
+            border-color: #444;
         }
 
         button {
-            background: #ffffff;
+            background: #f0f0f0;
             color: #000;
             border: none;
             padding: 0 20px;
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
+            transition: 0.2s;
         }
 
         button:hover {
-            background: #cccccc;
+            background: #ffffff;
         }
 
-        #chat-container::-webkit-scrollbar { width: 5px; }
-        #chat-container::-webkit-scrollbar-thumb { background: #333; }
+        /* Scrollbar Discreta */
+        #chat-container::-webkit-scrollbar { width: 4px; }
+        #chat-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -120,17 +129,17 @@
     </header>
 
     <div id="chat-container">
-        <div class="message ai-message">Migs AI conectada via DeepSeek. Como posso ajudar?</div>
+        <div class="message ai-message">Migs AI online (Groq). Como posso te ajudar hoje?</div>
     </div>
 
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="Escreva aqui..." onkeypress="handleKeyPress(event)">
+        <input type="text" id="userInput" placeholder="Escreva uma mensagem..." onkeypress="handleKeyPress(event)">
         <button onclick="sendMessage()">Enviar</button>
     </div>
 
     <script>
-        // CONFIGURAÇÃO DA CHAVE
-        const API_KEY = "sk-9b58bcfc9a994e999a75d34f1b4cd179";
+        // CONFIGURAÇÃO DA CHAVE GROQ
+        const API_KEY = "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";
 
         async function sendMessage() {
             const inputField = document.getElementById("userInput");
@@ -139,23 +148,25 @@
 
             if (messageText === "") return;
 
+            // Mostra mensagem do usuário
             appendMessage("user", messageText);
             inputField.value = "";
 
+            // Efeito de "Pensando"
             const loadingId = "loading-" + Date.now();
-            appendMessage("ai", "Pensando...", loadingId);
+            appendMessage("ai", "...", loadingId);
 
             try {
-                const response = await fetch("https://api.deepseek.com/chat/completions", {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${API_KEY}`
                     },
                     body: JSON.stringify({
-                        model: "deepseek-chat",
+                        model: "llama-3.3-70b-versatile",
                         messages: [
-                            { role: "system", content: "Você é a Migs AI, uma assistente prestativa e minimalista." },
+                            { role: "system", content: "Você é a Migs AI, uma assistente moderna, direta e amigável." },
                             { role: "user", content: messageText }
                         ]
                     })
@@ -164,15 +175,16 @@
                 const data = await response.json();
                 document.getElementById(loadingId).remove();
 
-                if (data.choices && data.choices[0].message.content) {
-                    appendMessage("ai", data.choices[0].message.content);
+                if (data.choices && data.choices[0].message) {
+                    const aiResponse = data.choices[0].message.content;
+                    appendMessage("ai", aiResponse);
                 } else {
-                    appendMessage("ai", "Erro: A chave pode estar sem saldo ou expirada.");
+                    appendMessage("ai", "Erro: Não recebi uma resposta válida da Groq.");
                 }
 
             } catch (error) {
-                document.getElementById(loadingId).remove();
-                appendMessage("ai", "Erro de conexão com o servidor.");
+                if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
+                appendMessage("ai", "Erro de conexão. Verifique se sua chave está ativa.");
                 console.error(error);
             }
         }
@@ -184,11 +196,15 @@
             if (id) messageDiv.id = id;
             messageDiv.innerText = text;
             chatContainer.appendChild(messageDiv);
+            
+            // Scroll automático
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
         function handleKeyPress(event) {
-            if (event.key === "Enter") sendMessage();
+            if (event.key === "Enter") {
+                sendMessage();
+            }
         }
     </script>
 </body>
