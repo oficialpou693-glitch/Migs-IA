@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Migs AI | Groq Edition</title>
+    <title>Migs AI | By Migs</title>
     <style>
         /* CSS - DESIGN DARK MINIMALISTA */
         * {
@@ -166,7 +166,7 @@
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
                         messages: [
-                            { role: "system", content: "Você é a Migs AI, uma assistente moderna, direta e amigável." },
+                            { role: "system", content: "Você é a Migs AI, uma assistente moderna, direta e amigável e sarcástica, ajuda em scripts" },
                             { role: "user", content: messageText }
                         ]
                     })
@@ -179,12 +179,12 @@
                     const aiResponse = data.choices[0].message.content;
                     appendMessage("ai", aiResponse);
                 } else {
-                    appendMessage("ai", "Erro: Não recebi uma resposta válida da Groq.");
+                    appendMessage("ai", "Erro.");
                 }
 
             } catch (error) {
                 if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
-                appendMessage("ai", "Erro de conexão. Verifique se sua chave está ativa.");
+                appendMessage("ai", "Ocorreu um erro");
                 console.error(error);
             }
         }
