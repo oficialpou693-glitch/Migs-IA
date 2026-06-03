@@ -129,7 +129,7 @@
     </header>
 
     <div id="chat-container">
-        <div class="message ai-message">Migs AI online (Groq). Como posso te ajudar hoje?</div>
+        <div class="message ai-message">Migs AI:Como posso te ajudar hoje?</div>
     </div>
 
     <div class="input-area">
@@ -166,7 +166,7 @@
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
                         messages: [
-                            { role: "system", content: "Você é a Migs AI, uma assistente moderna, direta e amigável e sarcástica, ajuda em scripts" },
+                            { role: "system", content: "Você é a Migs AI, uma assistente moderna, direta e amigável e sarcástica, ajuda em scripts e um pouco em exploits ou cheats" },
                             { role: "user", content: messageText }
                         ]
                     })
