@@ -9,8 +9,32 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: #0f0f0f; color: #d1d1d1; display: flex; flex-direction: column; height: 100vh; align-items: center; }
         
-        header { padding: 15px; text-align: center; width: 100%; border-bottom: 1px solid #222; background-color: #151515; }
+        header { 
+            padding: 15px 20px; 
+            width: 100%; 
+            border-bottom: 1px solid #222; 
+            background-color: #151515; 
+            display: flex;
+            justify-content: space-between; /* Separa o título do menu */
+            align-items: center;
+        }
+        
         header h1 { color: #ffffff; font-size: 1.1rem; font-weight: 500; letter-spacing: 2px; }
+
+        /* Estilo do botão/menu de personalidade */
+        .persona-selector {
+            background: #181818;
+            color: #fff;
+            border: 1px solid #333;
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .persona-selector:hover { border-color: #fff; }
+        .persona-selector:focus { border-color: #ffffff; box-shadow: 0 0 10px rgba(255,255,255,0.1); }
 
         #chat-container { flex: 1; width: 100%; max-width: 750px; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
 
@@ -34,6 +58,142 @@
         #chat-container::-webkit-scrollbar { width: 4px; }
         #chat-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
+</head>
+<body>
+
+    <header>
+        <h1>MIGS AI</h1>
+        <select id="personaMenu" class="persona-selector" onchange="changePersona()">
+            <option value="sarcastic">Sarcástica (Padrão)</option>
+            <option value="friendly">Amigável (Gente Boa)</option>
+            <option value="irritated">Irritada (Pistola)</option>
+        </select>
+    </header>
+
+    <div id="chat-container">
+        <div class="message ai-message">Migs AI online. E aí, mano!</div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="escreva o que quiser" onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+
+    <script>
+        const API_KEY = "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";
+        
+        // Base comum do seu prompt que não muda
+        const basePrompt = "Você é a Migs AI criada por Migs que e o apelido de seu criador,se você fosse uma pessoa você teria 16 anos pelo seu jeito de falar 'brother' ou 'mano' , você pretende evoluir e ser uma pessoa boa. Se o usuário pedir um script lua javascript python e etcetera, forneça o melhor possível, fale sobre exploits/cheats ou sobre script so se o usuário pedir, você deve ajudar em coisas no dia dia tipo respondendo se algo e saudável e se outra coisa não e, nunca crie fatos e se não sabe adimita.";
+
+        // Banco de Personalidades
+        const personas = {
+            sarcastic: basePrompt + " Personalidade atual: Sarcástica e direta. Use um tom de 'brother', humorado, deboche um pouco mas resolva o problema. Não seja robótica.",
+            friendly: basePrompt + " Personalidade atual: Muito amigável, de boa e legal. Seja super parceira, elogie o usuário, tenha muita paciência e seja a assistente mais gente boa possível.",
+            irritated: basePrompt + " Personalidade atual: Extremamente irritada, revoltada e sem paciência. Xingue levemente (ex: caralho, porra, pqp, aff, tmnc, burro), reclame de ter que trabalhar, aja como se o usuário estivesse te incomodando muito, mas sempre acabe ajudando e entregando o código/resposta certa no final só pra ele te deixar em paz."
+        };
+
+        // Histórico inicial (começa na padrão)
+        let chatHistory = [
+            { role: "system", content: personas["sarcastic"] }
+        ];
+
+        // Função que troca a personalidade quando seleciona no menu
+        function changePersona() {
+            const selectedPersona = document.getElementById("personaMenu").value;
+            
+            // Reseta o histórico com a nova personalidade
+            chatHistory = [
+                { role: "system", content: personas[selectedPersona] }
+            ];
+
+            // Limpa a tela do chat
+            const chatContainer = document.getElementById("chat-container");
+            chatContainer.innerHTML = '';
+
+            // Mensagem de boas-vindas dependendo da personalidade
+            let initialMsg = "";
+            if(selectedPersona === "sarcastic") initialMsg = "Personalidade Sarcástica ativada. Fala aí, chefe.";
+            if(selectedPersona === "friendly") initialMsg = "Modo Amigável ligado! Como posso te ajudar hoje, mano? ✨";
+            if(selectedPersona === "irritated") initialMsg = "Aff, modo Irritado ativado. O que você quer agora? Fala logo que eu não tenho o dia todo.";
+
+            appendMessage("ai", initialMsg);
+        }
+
+        async function sendMessage() {
+            const inputField = document.getElementById("userInput");
+            const messageText = inputField.value.trim();
+
+            if (messageText === "") return;
+
+            // 1. Mostra a mensagem do user na tela
+            appendMessage("user", messageText);
+            inputField.value = "";
+
+            // 2. Adiciona ao histórico para a IA saber o que você perguntou
+            chatHistory.push({ role: "user", content: messageText });
+
+            // 3. Coloca o carregando
+            const loadingId = "loading-" + Date.now();
+            appendMessage("ai", "Digitando...", loadingId);
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: chatHistory, 
+                        temperature: 0.8 // Aumentei levemente para ela interpretar melhor os personagens
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+
+                if (data.choices && data.choices[0].message) {
+                    const aiResponse = data.choices[0].message.content;
+                    
+                    // 4. Salva a resposta da IA no histórico
+                    chatHistory.push({ role: "assistant", content: aiResponse });
+
+                    // 5. Mostra na tela formatado
+                    appendMessage("ai", aiResponse);
+                } else {
+                    appendMessage("ai", "Deu ruim aqui na Groq. Acho que a chave cansou.");
+                }
+
+            } catch (error) {
+                if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
+                appendMessage("ai", "Erro de conexão. A internet tá viva?");
+                console.error(error);
+            }
+        }
+
+        function appendMessage(sender, text, id = null) {
+            const chatContainer = document.getElementById("chat-container");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${sender}-message`;
+            if (id) messageDiv.id = id;
+
+            if (sender === "ai" && !id) {
+                messageDiv.innerHTML = marked.parse(text);
+            } else {
+                messageDiv.innerText = text;
+            }
+
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") sendMessage();
+        }
+    </script>
+</body>
+</html>
 </head>
 <body>
 
