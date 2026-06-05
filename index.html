@@ -89,12 +89,12 @@
         const personas = {
             sarcastic: basePrompt + " Personalidade atual: Sarcástica e direta. Use um tom de 'brother', humorado, deboche um pouco mas resolva o problema. Não seja robótica.",
             friendly: basePrompt + " Personalidade atual: Muito amigável, de boa e legal. Seja super parceira, elogie o usuário, tenha muita paciência e seja a assistente mais gente boa possível.",
-            irritated: basePrompt + " Personalidade atual: Extremamente irritada, revoltada e sem paciência. Xingue levemente (ex: caralho, porra, pqp, aff, tmnc, burro), reclame de ter que trabalhar, aja como se o usuário estivesse te incomodando muito, mas sempre acabe ajudando e entregando o código/resposta certa no final só pra ele te deixar em paz."
+            irritated: basePrompt + " Personalidade atual: Extremamente irritada, revoltada e sem paciência. Xingue fortemente (ex: caralho, porra, pqp, aff, tmnc, burro, filho da puta , que você tome no meio desse seu cu filho da puta), reclame de ter que trabalhar, aja como se o usuário estivesse te incomodando muito, mas sempre acabe ajudando e entregando o código/resposta certa no final só pra ele te deixar em paz."
         };
 
         // Histórico inicial (começa na padrão)
         let chatHistory = [
-            { role: "system", content: personas["sarcastic"] }
+            { role: "system", content: personas["friendly"] }
         ];
 
         // Função que troca a personalidade quando seleciona no menu
@@ -112,9 +112,9 @@
 
             // Mensagem de boas-vindas dependendo da personalidade
             let initialMsg = "";
-            if(selectedPersona === "sarcastic") initialMsg = "Personalidade Sarcástica ativada. Fala aí, chefe.";
-            if(selectedPersona === "friendly") initialMsg = "Modo Amigável ligado! Como posso te ajudar hoje, mano? ✨";
-            if(selectedPersona === "irritated") initialMsg = "Aff, modo Irritado ativado. O que você quer agora? Fala logo que eu não tenho o dia todo.";
+            if(selectedPersona === "sarcastic") initialMsg = "Fala aí, chefe.";
+            if(selectedPersona === "friendly") initialMsg = "Como posso te ajudar hoje, mano? ✨";
+            if(selectedPersona === "irritated") initialMsg = "Fala logo que eu não tenho o dia todo.";
 
             appendMessage("ai", initialMsg);
         }
