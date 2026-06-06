@@ -8,7 +8,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#151515">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png">
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -17,6 +16,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: #0f0f0f; color: #d1d1d1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
+        /* --- SIDEBAR --- */
         .sidebar {
             position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
             background-color: #111; border-right: 1px solid #222; z-index: 1000;
@@ -29,7 +29,6 @@
             background-color: #fff; color: #000; border: none; padding: 12px; border-radius: 8px;
             font-weight: bold; cursor: pointer; margin-bottom: 20px; transition: 0.2s;
         }
-        .new-chat-btn:active { transform: scale(0.95); }
         .chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .chat-item {
             background: #181818; color: #ccc; padding: 12px; border-radius: 8px; cursor: pointer;
@@ -39,52 +38,44 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; display: none; }
         .overlay.show { display: block; }
 
+        /* --- HEADER --- */
         header { 
             padding: 10px 15px; width: 100%; border-bottom: 1px solid #222; 
             background-color: #151515; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
             z-index: 100;
         }
         .logo-container { display: flex; align-items: center; gap: 10px; }
-        .menu-btn { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; padding-right: 5px; }
+        .menu-btn { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
         .logo-img { height: 35px; width: auto; border-radius: 5px; }
-        .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .controls { display: flex; gap: 8px; align-items: center; }
         .custom-select {
             background: #181818; color: #fff; border: 1px solid #333; padding: 6px;
-            border-radius: 6px; outline: none; cursor: pointer; font-size: 0.75rem;
+            border-radius: 6px; font-size: 0.75rem; outline: none;
         }
-        .login-btn { 
-            background: #4285F4; color: white; border: none; padding: 8px 15px; 
-            border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem;
-        }
+        .login-btn { background: #4285F4; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .user-name { font-size: 0.75rem; color: #fff; font-weight: bold; display: none; }
 
-        #chat-container { flex: 1; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; margin: 0 auto; max-width: 800px;}
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; line-height: 1.5; font-size: 15px; animation: fadeIn 0.2s ease; }
+        /* --- CHAT AREA --- */
+        #chat-container { flex: 1; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; max-width: 800px; margin: 0 auto; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; line-height: 1.5; font-size: 15px; animation: fadeIn 0.2s ease; position: relative; }
         .user-message { align-self: flex-end; background-color: #2a2a2a; border-right: 4px solid #fff; border-bottom-right-radius: 2px; }
-        .ai-message { align-self: flex-start; background-color: #181818; border: 1px solid #252525; border-bottom-left-radius: 2px; }
-        img.chat-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #333; display: block; }
+        .ai-message { align-self: flex-start; background-color: #181818; border: 1px solid #252525; border-bottom-left-radius: 2px; overflow: hidden; }
 
-        .input-area { width: 100%; padding: 15px 20px; display: flex; gap: 10px; background: #0f0f0f; border-top: 1px solid #222; max-width: 800px; margin: 0 auto;}
+        /* FIX DE IMAGEM: O que faltava pra não quebrar tudo */
+        .message img { 
+            max-width: 100% !important; 
+            height: auto !important; 
+            border-radius: 8px; 
+            margin-top: 10px; 
+            display: block; 
+            border: 1px solid #333;
+        }
+
+        .input-area { width: 100%; padding: 15px 20px; display: flex; gap: 10px; background: #0f0f0f; border-top: 1px solid #222; max-width: 800px; margin: 0 auto; }
         input { flex: 1; background: #181818; border: 1px solid #333; padding: 14px; border-radius: 10px; color: white; outline: none; }
-        .send-btn { background: #fff; color: #000; border: none; padding: 0 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    /* Garante que a imagem nunca ultrapasse o balão de chat */
-.message img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    margin-top: 10px;
-    display: block;
-    object-fit: contain; /* Evita distorção */
-    border: 2px solid #333;
-}
+        .send-btn { background: #fff; color: #000; border: none; padding: 0 20px; border-radius: 10px; font-weight: 700; cursor: pointer; }
 
-/* Se aparecer um fundo estranho, isso aqui limpa */
-.ai-message {
-    overflow: hidden; 
-    word-wrap: break-word;
-}
-        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -103,8 +94,8 @@
     <header>
         <div class="logo-container">
             <button id="menuBtn" class="menu-btn">☰</button>
-            <img src="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png" alt="Migs Studios" class="logo-img">
-            <span style="font-weight: bold; font-size: 1rem; color: #fff;">MIGS AI</span>
+            <img src="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png" class="logo-img">
+            <span style="font-weight: bold; color: #fff;">MIGS AI</span>
         </div>
         <div class="controls">
             <select id="langMenu" class="custom-select">
@@ -130,10 +121,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { 
-            getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, 
-            GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -159,27 +147,28 @@
         // --- SIDEBAR ---
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
-        function abrirSidebar() { sidebar.classList.add("open"); overlay.classList.add("show"); }
-        function fecharSidebar() { sidebar.classList.remove("open"); overlay.classList.remove("show"); }
-        document.getElementById("menuBtn").onclick = abrirSidebar;
-        document.getElementById("closeSidebarBtn").onclick = fecharSidebar;
-        overlay.onclick = fecharSidebar;
+        document.getElementById("menuBtn").onclick = () => { sidebar.classList.add("open"); overlay.classList.add("show"); };
+        document.getElementById("closeSidebarBtn").onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
+        overlay.onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
 
+        // --- PROMPT (Ajustado para não spammar foto) ---
         function getSystemPrompt() {
             const persona = document.getElementById("personaMenu").value;
             const lang = document.getElementById("langMenu").value;
-            let prompt = "Você é o Migs AI, um garoto de 16 anos, criado por Migs... ";
-            prompt += "REGRA DE IMAGEM: ![Image](https://loremflickr.com/1080/1080/ASSUNTO). ";
+            let prompt = "Você é o Migs AI, um garoto de 16 anos. Você ajuda em programação. ";
+            prompt += "REGRA DE IMAGEM: Só envie imagens se o usuário pedir 'gere uma imagem' ou 'mostre uma foto'. Caso contrário, use apenas texto. ";
+            prompt += "Formato de imagem: ![Image](https://loremflickr.com/800/600/ASSUNTO). ";
+            
             if (lang === "en") {
-                prompt += "Speak ONLY in English. ";
-                if (persona === "sarcastic") prompt += "Be sarcastic.";
-                else if (persona === "friendly") prompt += "Be friendly.";
-                else prompt += "Be irritated.";
+                prompt += "Speak English. ";
+                if (persona === "sarcastic") prompt += "Be very sarcastic and ironic.";
+                else if (persona === "friendly") prompt += "Be nice and polite.";
+                else prompt += "Be very angry and use emojis like 😑.";
             } else {
-                prompt += "Fale APENAS em Português. ";
-                if (persona === "sarcastic") prompt += "Seja sarcástico.";
-                else if (persona === "friendly") prompt += "Seja amigável.";
-                else prompt += "Seja irritado.";
+                prompt += "Fale Português com gírias de jovem. ";
+                if (persona === "sarcastic") prompt += "Seja muito debochado e use '💀'.";
+                else if (persona === "friendly") prompt += "Seja gentil e prestativo.";
+                else prompt += "Seja grosso, sem paciência e xingue (moderado). Use emojis 😑✌️.";
             }
             return prompt;
         }
@@ -189,9 +178,7 @@
             try {
                 await setPersistence(auth, browserLocalPersistence);
                 await signInWithPopup(auth, provider);
-            } catch (error) {
-                await signInWithRedirect(auth, provider);
-            }
+            } catch (e) { alert("Erro no login, brother!"); }
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -200,121 +187,111 @@
                 document.getElementById("loginBtn").style.display = "none";
                 document.getElementById("userName").style.display = "block";
                 document.getElementById("userName").innerText = `Salve, ${user.displayName.split(' ')[0]}!`;
-                await carregarTodosChats();
-            } else {
-                iniciarChatSemLogin();
-            }
+                await carregarChats();
+            } else { iniciarSemLogin(); }
         });
 
-        // --- DATABASE ---
-        async function salvarSessoesNoBanco() {
+        // --- CHATS ---
+        async function salvarNoBanco() {
             if (!currentUser) return;
-            let sessaoAtual = sessions.find(s => s.id === currentSessionId);
-            if (sessaoAtual) {
-                sessaoAtual.messages = chatHistory;
-                if (sessaoAtual.title === "Novo Papo" && chatHistory.length > 1) {
-                    const primeiraMsg = chatHistory.find(m => m.role === 'user');
-                    if (primeiraMsg) sessaoAtual.title = primeiraMsg.content.substring(0, 25) + "...";
+            let s = sessions.find(x => x.id === currentSessionId);
+            if (s) {
+                s.messages = chatHistory;
+                if (s.title === "Novo Papo" && chatHistory.length > 1) {
+                    const first = chatHistory.find(m => m.role === 'user');
+                    if (first) s.title = first.content.substring(0, 20) + "...";
                 }
             }
-            await setDoc(doc(db, "chats", currentUser.uid), { sessions: sessions });
-            renderizarListaSidebar();
+            await setDoc(doc(db, "chats", currentUser.uid), { sessions });
+            renderSidebar();
         }
 
-        async function carregarTodosChats() {
-            const docSnap = await getDoc(doc(db, "chats", currentUser.uid));
-            if (docSnap.exists() && docSnap.data().sessions?.length > 0) {
-                sessions = docSnap.data().sessions;
-                selecionarChat(sessions[sessions.length - 1].id);
-            } else { criarNovoChat(); }
-            renderizarListaSidebar();
+        async function carregarChats() {
+            const snap = await getDoc(doc(db, "chats", currentUser.uid));
+            if (snap.exists() && snap.data().sessions?.length > 0) {
+                sessions = snap.data().sessions;
+                abrirChat(sessions[sessions.length - 1].id);
+            } else { novoChat(); }
+            renderSidebar();
         }
 
-        function criarNovoChat() {
+        function novoChat() {
             const id = Date.now().toString();
             currentSessionId = id;
             chatHistory = [{ role: "system", content: getSystemPrompt() }];
             sessions.push({ id, title: "Novo Papo", messages: chatHistory });
-            renderizarTodoOChat();
-            if (currentUser) salvarSessoesNoBanco();
-            fecharSidebar();
+            renderChat();
+            if (currentUser) salvarNoBanco();
+            sidebar.classList.remove("open"); overlay.classList.remove("show");
         }
 
-        function selecionarChat(id) {
+        function abrirChat(id) {
             currentSessionId = id;
-            const sessao = sessions.find(s => s.id === id);
-            if (sessao) {
-                chatHistory = sessao.messages;
-                renderizarTodoOChat();
-                renderizarListaSidebar();
-            }
-            fecharSidebar();
+            const s = sessions.find(x => x.id === id);
+            if (s) { chatHistory = s.messages; renderChat(); renderSidebar(); }
+            sidebar.classList.remove("open"); overlay.classList.remove("show");
         }
 
-        document.getElementById("newChatBtn").onclick = criarNovoChat;
+        document.getElementById("newChatBtn").onclick = novoChat;
 
-        function renderizarListaSidebar() {
+        function renderSidebar() {
             const list = document.getElementById("chatList");
             list.innerHTML = '';
             [...sessions].reverse().forEach(s => {
-                const div = document.createElement("div");
-                div.className = `chat-item ${s.id === currentSessionId ? 'active' : ''}`;
-                div.innerText = s.title;
-                div.onclick = () => selecionarChat(s.id);
-                list.appendChild(div);
+                const d = document.createElement("div");
+                d.className = `chat-item ${s.id === currentSessionId ? 'active' : ''}`;
+                d.innerText = s.title;
+                d.onclick = () => abrirChat(s.id);
+                list.appendChild(d);
             });
         }
 
-        function iniciarChatSemLogin() { sessions = []; criarNovoChat(); }
+        function iniciarSemLogin() { sessions = []; novoChat(); }
 
-        function renderizarTodoOChat() {
-            const container = document.getElementById("chat-container");
-            container.innerHTML = '';
-            chatHistory.forEach(msg => {
-                if (msg.role !== "system") appendMessage(msg.role === "user" ? "user" : "ai", msg.content);
-            });
+        function renderChat() {
+            const cont = document.getElementById("chat-container");
+            cont.innerHTML = '';
+            chatHistory.forEach(m => { if (m.role !== "system") append(m.role === "user" ? "user" : "ai", m.content); });
         }
 
-        document.getElementById("sendBtn").onclick = enviarMensagem;
-        document.getElementById("userInput").onkeypress = (e) => { if(e.key === "Enter") enviarMensagem(); };
+        document.getElementById("sendBtn").onclick = enviar;
+        document.getElementById("userInput").onkeypress = (e) => { if(e.key === "Enter") enviar(); };
 
-        async function enviarMensagem() {
+        async function enviar() {
             const input = document.getElementById("userInput");
-            const text = input.value.trim();
-            if (!text) return;
-            appendMessage("user", text);
+            const val = input.value.trim();
+            if (!val) return;
+            append("user", val);
             input.value = "";
-            chatHistory.push({ role: "user", content: text });
+            chatHistory.push({ role: "user", content: val });
             chatHistory[0].content = getSystemPrompt();
             try {
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY_GROQ}` },
                     body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: chatHistory, temperature: 0.8 })
                 });
-                const data = await response.json();
-                const aiRes = data.choices[0].message.content;
-                chatHistory.push({ role: "assistant", content: aiRes });
-                appendMessage("ai", aiRes);
-                salvarSessoesNoBanco();
-            } catch (e) { appendMessage("ai", "Erro na conexão."); }
+                const data = await res.json();
+                const ai = data.choices[0].message.content;
+                chatHistory.push({ role: "assistant", content: ai });
+                append("ai", ai);
+                salvarNoBanco();
+            } catch (e) { append("ai", "Vixe, deu erro!"); }
         }
 
-        function appendMessage(sender, text) {
-            const container = document.getElementById("chat-container");
-            const div = document.createElement("div");
-            div.className = `message ${sender}-message`;
-            div.innerHTML = marked.parse(text);
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
+        function append(side, text) {
+            const cont = document.getElementById("chat-container");
+            const d = document.createElement("div");
+            d.className = `message ${side}-message`;
+            d.innerHTML = marked.parse(text);
+            cont.appendChild(d);
+            cont.scrollTop = cont.scrollHeight;
         }
 
-        // REGISTRO DO SERVICE WORKER (PWA)
+        // SERVICE WORKER
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(reg => {
-                    console.log('SW registrado!', reg);
-                }).catch(err => console.log('Erro no SW', err));
+                navigator.serviceWorker.register('sw.js').catch(e => console.log(e));
             });
         }
     </script>
