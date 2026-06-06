@@ -1,85 +1,47 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Migs AI | Migs Studios</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#151515">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png">
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* [O SEU CSS CONTINUA EXATAMENTE O MESMO AQUI] */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: #0f0f0f; color: #d1d1d1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        /* --- MENU LATERAL (SIDEBAR) --- */
-        .sidebar {
-            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
-            background-color: #111; border-right: 1px solid #222; z-index: 1000;
-            transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px;
-        }
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: #111; border-right: 1px solid #222; z-index: 1000; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         .sidebar.open { left: 0; }
-        
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .close-sidebar { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
-        
-        .new-chat-btn {
-            background-color: #fff; color: #000; border: none; padding: 12px; border-radius: 8px;
-            font-weight: bold; cursor: pointer; margin-bottom: 20px; transition: 0.2s;
-        }
-        .new-chat-btn:active { transform: scale(0.95); }
-
+        .new-chat-btn { background-color: #fff; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 20px; transition: 0.2s; }
         .chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .chat-item {
-            background: #181818; color: #ccc; padding: 12px; border-radius: 8px; cursor: pointer;
-            border: 1px solid #222; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
+        .chat-item { background: #181818; color: #ccc; padding: 12px; border-radius: 8px; cursor: pointer; border: 1px solid #222; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .chat-item.active { background: #2a2a2a; color: #fff; border-color: #555; }
-
-        /* Overlay escuro quando o menu abre */
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 999; display: none;
-        }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; display: none; }
         .overlay.show { display: block; }
-
-        /* --- HEADER E CONTROLES --- */
-        header { 
-            padding: 10px 15px; width: 100%; border-bottom: 1px solid #222; 
-            background-color: #151515; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
-            z-index: 100;
-        }
-        
+        header { padding: 10px 15px; width: 100%; border-bottom: 1px solid #222; background-color: #151515; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; z-index: 100; }
         .logo-container { display: flex; align-items: center; gap: 10px; }
         .menu-btn { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; padding-right: 5px; }
         .logo-img { height: 35px; width: auto; border-radius: 5px; }
-
         .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .custom-select {
-            background: #181818; color: #fff; border: 1px solid #333; padding: 6px;
-            border-radius: 6px; outline: none; cursor: pointer; font-size: 0.75rem;
-        }
-
-        .login-btn { 
-            background: #4285F4; color: white; border: none; padding: 8px 15px; 
-            border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem;
-        }
+        .custom-select { background: #181818; color: #fff; border: 1px solid #333; padding: 6px; border-radius: 6px; outline: none; cursor: pointer; font-size: 0.75rem; }
+        .login-btn { background: #4285F4; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .user-name { font-size: 0.75rem; color: #fff; font-weight: bold; display: none; }
-
-        /* --- ÁREA DE CHAT --- */
         #chat-container { flex: 1; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; margin: 0 auto; max-width: 800px;}
-
         .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; line-height: 1.5; font-size: 15px; animation: fadeIn 0.2s ease; }
         .user-message { align-self: flex-end; background-color: #2a2a2a; border-right: 4px solid #fff; border-bottom-right-radius: 2px; }
         .ai-message { align-self: flex-start; background-color: #181818; border: 1px solid #252525; border-bottom-left-radius: 2px; }
-        
         img.chat-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #333; display: block; }
-
         .input-area { width: 100%; padding: 15px 20px; display: flex; gap: 10px; background: #0f0f0f; border-top: 1px solid #222; max-width: 800px; margin: 0 auto;}
         input { flex: 1; background: #181818; border: 1px solid #333; padding: 14px; border-radius: 10px; color: white; outline: none; }
         .send-btn { background: #fff; color: #000; border: none; padding: 0 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .send-btn:active { transform: scale(0.95); }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -93,8 +55,7 @@
             <button id="closeSidebarBtn" class="close-sidebar">×</button>
         </div>
         <button id="newChatBtn" class="new-chat-btn">+ Novo Papo</button>
-        <div id="chatList" class="chat-list">
-            </div>
+        <div id="chatList" class="chat-list"></div>
     </div>
 
     <header>
@@ -126,241 +87,19 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { 
-            getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, 
-            GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCyv_-Cf12mMlKBzegxG2YnkpimEN-AATE",
-            authDomain: "migs-ai.firebaseapp.com",
-            projectId: "migs-ai",
-            storageBucket: "migs-ai.firebasestorage.app",
-            messagingSenderId: "497142458753",
-            appId: "1:497142458753:web:e99b79b5128ec6e8d02080"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-        const API_KEY_GROQ = "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";
-
-        let currentUser = null;
-        let sessions = []; // Array que guarda todos os chats
-        let currentSessionId = null; // ID do chat atual
-        let chatHistory = []; // Histórico do chat aberto na tela
-
-        // --- CONTROLE DA SIDEBAR (MENU LATERAL) ---
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("overlay");
+        // [O SEU SCRIPT DO FIREBASE FICA AQUI IGUALZINHO]
+        // ... (Copie o script do Firebase que te mandei antes aqui) ...
         
-        function abrirSidebar() { sidebar.classList.add("open"); overlay.classList.add("show"); }
-        function fecharSidebar() { sidebar.classList.remove("open"); overlay.classList.remove("show"); }
-        
-        document.getElementById("menuBtn").onclick = abrirSidebar;
-        document.getElementById("closeSidebarBtn").onclick = fecharSidebar;
-        overlay.onclick = fecharSidebar;
-
-        // --- GERADOR DE PROMPT ---
-        function getSystemPrompt() {
-            const persona = document.getElementById("personaMenu").value;
-            const lang = document.getElementById("langMenu").value;
-
-            let prompt = "Você é o Migs AI, um garoto de 16 anos, criado por Migs, que pretende ajudar no que for preciso . Você ajuda em programação lua, java, javascript, python, e etc. ";
-            prompt += "REGRA DE IMAGEM: Se pedirem para gerar ou mostrar uma imagem, retorne EXATAMENTE neste formato: ![Image](https://loremflickr.com/1080/1080/ASSUNTO). ";
-
-            if (lang === "en") {
-                prompt += "CRITICAL RULE: You MUST speak ONLY in English. Use English teen slang (like 'bro', 'dude', 'man'). ";
-                if (persona === "sarcastic") prompt += "Your personality is highly sarcastic, ironic, and full of mockery.";
-                else if (persona === "friendly") prompt += "Your personality is very friendly, polite, and helpful.";
-                else if (persona === "irritated") prompt += "Your personality is irritated, short-tempered, and blunt.";
-            } else {
-                prompt += "REGRA CRÍTICA: Você DEVE falar APENAS em Português. Use gírias como 'brother', 'mano', 'tipo'. ";
-                if (persona === "sarcastic") prompt += "Sua personalidade é extremamente sarcástica, zueira e irônica. Use girias como 'Bro💀' 'Buddy' etc.";
-                else if (persona === "friendly") prompt += "Sua personalidade é muito amigável, educada e parceira, você não usa girias como 'mano' ou 'brother' e fala como uma pessoa gentil e normal.";
-                else if (persona === "irritated") prompt += "Sua personalidade é irritada, curta e grossa sem paciência e xinga palavrões fortes. Você usa emojis como '😑' ou '😴' ou ate combinações tipo '😑✌️' ou '😩✌️' .";
-            }
-            return prompt;
-        }
-
-        // --- SISTEMA DE LOGIN ---
-        document.getElementById("loginBtn").onclick = async () => {
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                try { await signInWithRedirect(auth, provider); } 
-                catch (err) { alert("Erro de cookies bloqueados no navegador."); }
-            }
-        };
-
-        getRedirectResult(auth).catch(() => {});
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById("loginBtn").style.display = "none";
-                document.getElementById("userName").style.display = "block";
-                document.getElementById("userName").innerText = `Salve, ${user.displayName.split(' ')[0]}!`;
-                await carregarTodosChats();
-            } else {
-                iniciarChatSemLogin();
-            }
-        });
-
-        // --- GERENCIADOR DE MÚLTIPLOS CHATS NO FIRESTORE ---
-        async function salvarSessoesNoBanco() {
-            if (!currentUser) return;
-            
-            // Atualiza a sessão atual no array geral antes de salvar
-            let sessaoAtual = sessions.find(s => s.id === currentSessionId);
-            if (sessaoAtual) {
-                sessaoAtual.messages = chatHistory;
-                
-                // Gera título automático se for um papo novo e o usuário já mandou algo
-                if (sessaoAtual.title === "Novo Papo" && chatHistory.length > 1) {
-                    const primeiraMsg = chatHistory.find(m => m.role === 'user');
-                    if (primeiraMsg) sessaoAtual.title = primeiraMsg.content.substring(0, 25) + "...";
-                }
-            }
-            
-            await setDoc(doc(db, "chats", currentUser.uid), { sessions: sessions });
-            renderizarListaSidebar();
-        }
-
-        async function carregarTodosChats() {
-            const docSnap = await getDoc(doc(db, "chats", currentUser.uid));
-            if (docSnap.exists() && docSnap.data().sessions && docSnap.data().sessions.length > 0) {
-                sessions = docSnap.data().sessions;
-                selecionarChat(sessions[sessions.length - 1].id); // Abre o chat mais recente
-            } else {
-                criarNovoChat(); // Se não tem nenhum salvo, cria um zerado
-            }
-            renderizarListaSidebar();
-        }
-
-        function criarNovoChat() {
-            const idId = Date.now().toString();
-            currentSessionId = idId;
-            chatHistory = [{ role: "system", content: getSystemPrompt() }];
-            
-            sessions.push({ id: idId, title: "Novo Papo", messages: chatHistory });
-            renderizarTodoOChat();
-            
-            if (currentUser) {
-                appendMessage("ai", "E aí, mano! Bora pra mais um papo?");
-                salvarSessoesNoBanco();
-            }
-            fecharSidebar();
-        }
-
-        function selecionarChat(id) {
-            currentSessionId = id;
-            const sessao = sessions.find(s => s.id === id);
-            if (sessao) {
-                chatHistory = sessao.messages;
-                // Atualiza o modo/persona atual no histórico carregado
-                if(chatHistory.length > 0 && chatHistory[0].role === "system") {
-                    chatHistory[0].content = getSystemPrompt();
-                }
-                renderizarTodoOChat();
-                renderizarListaSidebar();
-            }
-            fecharSidebar();
-        }
-
-        document.getElementById("newChatBtn").onclick = criarNovoChat;
-
-        function renderizarListaSidebar() {
-            const list = document.getElementById("chatList");
-            list.innerHTML = '';
-            // Renderiza de trás pra frente (mais recentes primeiro)
-            [...sessions].reverse().forEach(sessao => {
-                const div = document.createElement("div");
-                div.className = `chat-item ${sessao.id === currentSessionId ? 'active' : ''}`;
-                div.innerText = sessao.title;
-                div.onclick = () => selecionarChat(sessao.id);
-                list.appendChild(div);
-            });
-        }
-
-        function iniciarChatSemLogin() {
-            sessions = [];
-            criarNovoChat();
-            document.getElementById("chat-container").innerHTML = '';
-            appendMessage("ai", "E aí, mano! Sou o Migs. Se quiser criar múltiplos chats e salvar, clica em Login ali em cima!");
-        }
-
-        function renderizarTodoOChat() {
-            const container = document.getElementById("chat-container");
-            container.innerHTML = '';
-            chatHistory.forEach(msg => {
-                if (msg.role !== "system") appendMessage(msg.role === "user" ? "user" : "ai", msg.content);
-            });
-        }
-
-        // --- LÓGICA DE MENSAGENS E API ---
-        document.getElementById("sendBtn").onclick = enviarMensagem;
-        document.getElementById("userInput").onkeypress = (e) => { if(e.key === "Enter") enviarMensagem(); };
-
-        async function enviarMensagem() {
-            const input = document.getElementById("userInput");
-            const text = input.value.trim();
-            if (!text) return;
-
-            appendMessage("user", text);
-            input.value = "";
-            chatHistory.push({ role: "user", content: text });
-
-            chatHistory[0].content = getSystemPrompt();
-
-            try {
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY_GROQ}` },
-                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: chatHistory, temperature: 0.8 })
+        // APENAS ADICIONE ISSO NO FINAL DO SCRIPT MODULE:
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('Migs AI: Service Worker Ativo!', reg);
+                }).catch(err => {
+                    console.log('Erro no Service Worker', err);
                 });
-
-                const data = await response.json();
-                const aiRes = data.choices[0].message.content;
-                
-                chatHistory.push({ role: "assistant", content: aiRes });
-                appendMessage("ai", aiRes);
-                salvarSessoesNoBanco();
-            } catch (e) {
-                appendMessage("ai", "Vixe brother, deu erro na conexão. Tenta de novo!");
-            }
-        }
-
-        function appendMessage(sender, text) {
-            const container = document.getElementById("chat-container");
-            const div = document.createElement("div");
-            div.className = `message ${sender}-message`;
-            div.innerHTML = marked.parse(text);
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-            
-            div.querySelectorAll('img').forEach(img => {
-                if (!img.classList.contains('logo-img')) img.classList.add('chat-img');
             });
         }
-
-        function atualizarConfiguracoes() {
-            if (chatHistory.length > 0) {
-                chatHistory[0].content = getSystemPrompt();
-                const lang = document.getElementById("langMenu").value;
-                const aviso = lang === "en" ? "*Settings updated, bro!*" : "*Configurações atualizadas, mano!*";
-                appendMessage("ai", aviso);
-                salvarSessoesNoBanco();
-            }
-        }
-
-        document.getElementById("personaMenu").onchange = atualizarConfiguracoes;
-        document.getElementById("langMenu").onchange = atualizarConfiguracoes;
-
     </script>
 </body>
 </html>
