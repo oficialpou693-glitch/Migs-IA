@@ -20,12 +20,7 @@
         }
         
         .logo-container { display: flex; align-items: center; }
-        .logo-img { 
-            height: 55px; 
-            width: auto;
-            object-fit: contain;
-            border: none;
-        }
+        .logo-img { height: 50px; width: auto; object-fit: contain; }
 
         .menus { display: flex; gap: 10px; }
         .custom-select {
@@ -39,15 +34,13 @@
         .user-message { align-self: flex-end; background-color: #2a2a2a; color: #fff; border-bottom-right-radius: 2px; border-right: 3px solid #fff; }
         .ai-message { align-self: flex-start; background-color: #181818; border: 1px solid #252525; border-bottom-left-radius: 2px; }
         
-        img.chat-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #333; display: block; }
+        img.chat-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #333; display: block; background: #000; }
 
         .input-area { width: 100%; max-width: 750px; padding: 20px; display: flex; gap: 10px; background: #0f0f0f; border-top: 1px solid #222; }
         input { flex: 1; background: #181818; border: 1px solid #333; padding: 12px; border-radius: 8px; color: white; outline: none; }
         .send-btn { background: #fff; color: #000; border: none; padding: 0 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        #chat-container::-webkit-scrollbar { width: 4px; }
-        #chat-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -80,8 +73,8 @@
         const API_KEY = "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";
         let currentLang = "pt";
 
-        // Mudei para o Picsum, que usa ID numérico ou aleatório e não dá 404
-        const basePrompt = "Você é a Migs AI da Migs Studios. Garota de 16 anos, gírias 'brother' e 'mano'. REGRA DE IMAGEM: Se pedirem imagem, responda APENAS com: ![Image](https://picsum.photos/seed/RANDOM/1080/1080). Substitua RANDOM por uma palavra aleatória em inglês.";
+        // Mudei a regra para usar o Pollinations com "nologo" e "p" (pro) para evitar filas e marcas d'água
+        const basePrompt = "Você é a Migs AI. Garota de 16 anos, gírias 'brother' e 'mano'. REGRA DE IMAGEM: Se pedirem imagem, responda APENAS com: ![Image](https://pollinations.ai/p/DESCRIPTION?width=1080&height=1080&nologo=true). Substitua DESCRIPTION por termos detalhados em inglês separados por %20.";
 
         const personas = {
             sarcastic: basePrompt + " Persona: Sarcástica.",
@@ -91,16 +84,13 @@
 
         let chatHistory = [];
 
-        function changeLanguage() { 
-            currentLang = document.getElementById("langMenu").value; 
-            changePersona(); 
-        }
+        function changeLanguage() { currentLang = document.getElementById("langMenu").value; changePersona(); }
 
         function changePersona() {
             const persona = document.getElementById("personaMenu").value;
             chatHistory = [{ role: "system", content: personas[persona] + (currentLang === "en" ? " Speak English." : " Fale Português.") }];
             document.getElementById("chat-container").innerHTML = '';
-            appendMessage("ai", currentLang === "pt" ? "E aí, brother! O que manda?" : "Yo! What's up?");
+            appendMessage("ai", currentLang === "pt" ? "E aí, mano! O que vamos criar?" : "Yo! What are we creating?");
         }
 
         async function sendMessage() {
@@ -124,7 +114,7 @@
                 chatHistory.push({ role: "assistant", content: aiRes });
                 appendMessage("ai", aiRes);
             } catch (e) {
-                appendMessage("ai", "Vixe, o sinal caiu. Tenta de novo.");
+                appendMessage("ai", "Sinal fraco, brother.");
             }
         }
 
@@ -133,10 +123,7 @@
             const div = document.createElement("div");
             div.className = `message ${sender}-message`;
             
-            // Garante que o link da imagem seja único para não repetir o gato
-            const processedText = text.replace(/seed\/([^/]+)/g, () => "seed/" + Math.random().toString(36).substring(7));
-            
-            div.innerHTML = marked.parse(processedText);
+            div.innerHTML = marked.parse(text);
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
             
