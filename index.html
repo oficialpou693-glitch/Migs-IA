@@ -16,266 +16,143 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: #0f0f0f; color: #d1d1d1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; width: 100vw; }
         
-        /* --- EXTERMÍNIO DE IMAGENS VIA CSS --- */
-        .message img, img.chat-img { 
-            display: none !important; 
-            visibility: hidden !important; 
-            height: 0 !important; 
-            width: 0 !important; 
-        }
+        /* CSS DE BLOQUEIO TOTAL */
+        img, picture, svg, canvas { display: none !important; opacity: 0 !important; pointer-events: none !important; }
 
         #chat-container { flex: 1; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; max-width: 100%; margin: 0 auto; }
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; line-height: 1.4; font-size: 15px; word-wrap: break-word; word-break: break-word; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; line-height: 1.4; font-size: 15px; word-wrap: break-word; }
         .user-message { align-self: flex-end; background-color: #2a2a2a; border-right: 4px solid #fff; }
         .ai-message { align-self: flex-start; background-color: #181818; border: 1px solid #252525; }
 
-        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: #111; border-right: 1px solid #222; z-index: 1000; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
-        .sidebar.open { left: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; display: none; }
-        .overlay.show { display: block; }
-        
         header { padding: 10px 15px; border-bottom: 1px solid #222; background-color: #151515; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
         .logo-container { display: flex; align-items: center; gap: 10px; }
-        .menu-btn { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
-        .logo-img { height: 35px; width: auto; border-radius: 5px; }
+        .logo-img { height: 35px; width: auto; border-radius: 5px; display: block !important; opacity: 1 !important; } /* A logo a gente deixa, né? haha */
+        
         .controls { display: flex; gap: 8px; align-items: center; }
         .custom-select { background: #181818; color: #fff; border: 1px solid #333; padding: 6px; border-radius: 6px; font-size: 0.75rem; outline: none; }
-        .login-btn { background: #4285F4; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-        .user-name { font-size: 0.75rem; color: #fff; font-weight: bold; display: none; }
-
+        
         .input-area { width: 100%; padding: 15px; display: flex; gap: 10px; background: #0f0f0f; border-top: 1px solid #222; }
-        input { flex: 1; background: #181818; border: 1px solid #333; padding: 12px; border-radius: 10px; color: white; outline: none; min-width: 0; }
+        input { flex: 1; background: #181818; border: 1px solid #333; padding: 12px; border-radius: 10px; color: white; outline: none; }
         .send-btn { background: #fff; color: #000; border: none; padding: 0 15px; border-radius: 10px; font-weight: 700; cursor: pointer; }
-        .new-chat-btn { background-color: #fff; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
-        .chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .chat-item { background: #181818; color: #ccc; padding: 12px; border-radius: 8px; cursor: pointer; border: 1px solid #222; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .chat-item.active { background: #2a2a2a; color: #fff; border-color: #555; }
+
+        /* Sidebar básica */
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: #111; border-right: 1px solid #222; z-index: 1000; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
+        .sidebar.open { left: 0; }
+        .chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+        .chat-item { background: #181818; color: #ccc; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; border: 1px solid #222; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; display: none; }
+        .overlay.show { display: block; }
     </style>
 </head>
 <body>
 
     <div id="overlay" class="overlay"></div>
     <div id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <span style="font-weight: bold; color: #fff;">Meus Chats</span>
-            <button id="closeSidebarBtn" class="close-sidebar">×</button>
-        </div>
-        <button id="newChatBtn" class="new-chat-btn">+ Novo Papo</button>
+        <button id="newChatBtn" style="padding:10px; cursor:pointer;">+ Novo Papo</button>
         <div id="chatList" class="chat-list"></div>
     </div>
 
     <header>
         <div class="logo-container">
-            <button id="menuBtn" class="menu-btn">☰</button>
+            <button id="menuBtn" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">☰</button>
             <img src="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png" class="logo-img">
-            <span style="font-weight: bold; color: #fff;">MIGS AI</span>
+            <span style="font-weight: bold;">MIGS AI</span>
         </div>
         <div class="controls">
-            <select id="langMenu" class="custom-select">
-                <option value="pt">🇧🇷 PT</option>
-                <option value="en">🇺🇸 EN</option>
-            </select>
+            <select id="langMenu" class="custom-select"><option value="pt">🇧🇷 PT</option><option value="en">🇺🇸 EN</option></select>
             <select id="personaMenu" class="custom-select">
                 <option value="sarcastic">Sarcástico</option>
                 <option value="friendly">Amigável</option>
                 <option value="irritated">Irritado</option>
             </select>
-            <button id="loginBtn" class="login-btn">Login</button>
-            <span id="userName" class="user-name"></span>
+            <button id="loginBtn" style="background:#4285F4; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Login</button>
         </div>
     </header>
 
     <div id="chat-container"></div>
 
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="Fala aí, mano..." autocomplete="off">
+        <input type="text" id="userInput" placeholder="Manda a letra..." autocomplete="off">
         <button class="send-btn" id="sendBtn">Enviar</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCyv_-Cf12mMlKBzegxG2YnkpimEN-AATE",
-            authDomain: "migs-ai.firebaseapp.com",
-            projectId: "migs-ai",
-            storageBucket: "migs-ai.firebasestorage.app",
-            messagingSenderId: "497142458753",
-            appId: "1:497142458753:web:e99b79b5128ec6e8d02080"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyCyv_-Cf12mMlKBzegxG2YnkpimEN-AATE", authDomain: "migs-ai.firebaseapp.com", projectId: "migs-ai", storageBucket: "migs-ai.firebasestorage.app", messagingSenderId: "497142458753", appId: "1:497142458753:web:e99b79b5128ec6e8d02080" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
         const API_KEY_GROQ = "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";
 
-        let currentUser = null;
-        let sessions = [];
-        let currentSessionId = null;
         let chatHistory = [];
+        let sessions = [];
+        let currentSessionId = Date.now().toString();
 
-        // --- SIDEBAR ---
+        // UI
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
         document.getElementById("menuBtn").onclick = () => { sidebar.classList.add("open"); overlay.classList.add("show"); };
-        document.getElementById("closeSidebarBtn").onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
         overlay.onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
 
-        // --- PROMPT (PROIBIÇÃO TOTAL DE IMAGENS) ---
-        function getSystemPrompt() {
-            const persona = document.getElementById("personaMenu").value;
-            const lang = document.getElementById("langMenu").value;
-            let prompt = "Você é o Migs AI, um garoto de 16 anos. Especialista em Java, Lua, Python. ";
-            prompt += "PROIBIÇÃO CRÍTICA: NUNCA envie imagens, links de imagens ou Markdown de imagens (![text](url)). Use APENAS texto puro e código. ";
-            
-            if (lang === "en") {
-                prompt += "Speak English. ";
-                if (persona === "sarcastic") prompt += "Be ironic and sarcastic. Use '💀'.";
-                else if (persona === "friendly") prompt += "Be polite and don't use 'bro'.";
-                else prompt += "Be very angry, short-tempered and use 😑.";
-            } else {
-                prompt += "Fale Português com gírias. ";
-                if (persona === "sarcastic") prompt += "Seja sarcástico e use '💀'.";
-                else if (persona === "friendly") prompt += "Seja gentil. NÃO use 'mano' ou 'bro'.";
-                else prompt += "Seja extremamente grosso, sem paciência e use xingamentos fortes. Use 😑✌️.";
-            }
-            return prompt;
+        function getPrompt() {
+            const p = document.getElementById("personaMenu").value;
+            let base = "Você é o Migs AI, 16 anos. Fale APENAS texto. PROIBIDO markdown de imagem ou links de fotos. ";
+            if(p === "sarcastic") base += "Seja sarcástico e use 💀.";
+            else if(p === "friendly") base += "Seja legal.";
+            else base += "Seja MUITO grosso, xingue e use 😑✌️.";
+            return base;
         }
-
-        // --- FIREBASE & LOGIN ---
-        document.getElementById("loginBtn").onclick = async () => {
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-                await signInWithPopup(auth, provider);
-            } catch (e) { alert("Erro no login!"); }
-        };
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById("loginBtn").style.display = "none";
-                document.getElementById("userName").style.display = "block";
-                document.getElementById("userName").innerText = `Salve, ${user.displayName.split(' ')[0]}!`;
-                await carregarChats();
-            } else { iniciarSemLogin(); }
-        });
-
-        async function salvarNoBanco() {
-            if (!currentUser) return;
-            let s = sessions.find(x => x.id === currentSessionId);
-            if (s) {
-                s.messages = chatHistory;
-                if (s.title === "Novo Papo" && chatHistory.length > 1) {
-                    const first = chatHistory.find(m => m.role === 'user');
-                    if (first) s.title = first.content.substring(0, 20) + "...";
-                }
-            }
-            await setDoc(doc(db, "chats", currentUser.uid), { sessions });
-            renderSidebar();
-        }
-
-        async function carregarChats() {
-            const snap = await getDoc(doc(db, "chats", currentUser.uid));
-            if (snap.exists() && snap.data().sessions?.length > 0) {
-                sessions = snap.data().sessions;
-                abrirChat(sessions[sessions.length - 1].id);
-            } else { novoChat(); }
-            renderSidebar();
-        }
-
-        function novoChat() {
-            const id = Date.now().toString();
-            currentSessionId = id;
-            chatHistory = [{ role: "system", content: getSystemPrompt() }];
-            sessions.push({ id, title: "Novo Papo", messages: chatHistory });
-            renderChat();
-            if (currentUser) salvarNoBanco();
-            sidebar.classList.remove("open"); overlay.classList.remove("show");
-        }
-
-        function abrirChat(id) {
-            currentSessionId = id;
-            const s = sessions.find(x => x.id === id);
-            if (s) { chatHistory = s.messages; renderChat(); renderSidebar(); }
-            sidebar.classList.remove("open"); overlay.classList.remove("show");
-        }
-
-        document.getElementById("newChatBtn").onclick = novoChat;
-
-        function renderSidebar() {
-            const list = document.getElementById("chatList");
-            list.innerHTML = '';
-            [...sessions].reverse().forEach(s => {
-                const d = document.createElement("div");
-                d.className = `chat-item ${s.id === currentSessionId ? 'active' : ''}`;
-                d.innerText = s.title;
-                d.onclick = () => abrirChat(s.id);
-                list.appendChild(d);
-            });
-        }
-
-        function iniciarSemLogin() { sessions = []; novoChat(); }
-
-        function renderChat() {
-            const cont = document.getElementById("chat-container");
-            cont.innerHTML = '';
-            chatHistory.forEach(m => { if (m.role !== "system") append(m.role === "user" ? "user" : "ai", m.content); });
-        }
-
-        // --- ENVIO ---
-        document.getElementById("sendBtn").onclick = enviar;
-        document.getElementById("userInput").onkeypress = (e) => { if(e.key === "Enter") enviar(); };
 
         async function enviar() {
             const input = document.getElementById("userInput");
-            const val = input.value.trim();
-            if (!val) return;
-            append("user", val);
+            if(!input.value.trim()) return;
+            const text = input.value;
+            append("user", text);
             input.value = "";
-            chatHistory.push({ role: "user", content: val });
-            chatHistory[0].content = getSystemPrompt();
-            try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY_GROQ}` },
-                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: chatHistory, temperature: 0.8 })
-                });
-                const data = await res.json();
-                const ai = data.choices[0].message.content;
-                chatHistory.push({ role: "assistant", content: ai });
-                append("ai", ai);
-                salvarNoBanco();
-            } catch (e) { append("ai", "Erro na API!"); }
-        }
+            chatHistory.push({role: "user", content: text});
 
-        // --- FILTRAGEM FINAL DE SEGURANÇA ---
-        function append(side, text) {
-            const cont = document.getElementById("chat-container");
-            const d = document.createElement("div");
-            d.className = `message ${side}-message`;
-            
-            // Remove qualquer tag de imagem antes de converter para Markdown
-            const cleanText = text.replace(/!\[.*?\]\(.*?\)/g, "[Imagem Bloqueada]");
-            d.innerHTML = marked.parse(cleanText);
-            
-            // Segundo nível: Deleta qualquer elemento <img> que tenha sobrado
-            const images = d.getElementsByTagName('img');
-            while(images.length > 0) {
-                images[0].parentNode.removeChild(images[0]);
-            }
-
-            cont.appendChild(d);
-            cont.scrollTop = cont.scrollHeight;
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(e => console.log(e));
+            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "Authorization": `Bearer ${API_KEY_GROQ}`},
+                body: JSON.stringify({model: "llama-3.3-70b-versatile", messages: [{role: "system", content: getPrompt()}, ...chatHistory]})
             });
+            const data = await res.json();
+            const aiText = data.choices[0].message.content;
+            chatHistory.push({role: "assistant", content: aiText});
+            append("ai", aiText);
         }
+
+        // A FUNÇÃO QUE MATA AS IMAGENS DE VERDADE
+        function append(side, text) {
+            const container = document.getElementById("chat-container");
+            const div = document.createElement("div");
+            div.className = `message ${side}-message`;
+            
+            // 1. Remove qualquer Markdown de imagem ![alt](url)
+            let clean = text.replace(/!\[.*?\]\(.*?\)/g, "");
+            
+            // 2. Remove qualquer link solto que pareça imagem
+            clean = clean.replace(/https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg)/gi, "[Link de Imagem Bloqueado]");
+
+            div.innerHTML = marked.parse(clean);
+            
+            // 3. Varredura final: Deleta qualquer tag IMG que tenha escapado
+            const imgs = div.querySelectorAll("img:not(.logo-img)");
+            imgs.forEach(i => i.remove());
+
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        document.getElementById("sendBtn").onclick = enviar;
+        document.getElementById("userInput").onkeypress = (e) => { if(e.key === "Enter") enviar(); };
+        
+        onAuthStateChanged(auth, (user) => { if(!user) chatHistory = []; });
+        document.getElementById("loginBtn").onclick = () => signInWithPopup(auth, provider);
     </script>
 </body>
 </html>
