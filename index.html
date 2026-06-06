@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Migs AI | Migs Studios</title>
     
     <link rel="manifest" href="manifest.json">
@@ -11,69 +11,104 @@
     <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png">
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: #0f0f0f; color: #d1d1d1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; width: 100vw; }
-        
-        /* CSS DE BLOQUEIO TOTAL */
-        img, picture, svg, canvas { display: none !important; opacity: 0 !important; pointer-events: none !important; }
+        /* --- RESET E BASE (MATANDO O ERRO DE TAMANHO GIGANTE) --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        html, body { width: 100%; height: 100%; background-color: #0f0f0f; color: #e0e0e0; overflow: hidden; position: fixed; }
 
-        #chat-container { flex: 1; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; max-width: 100%; margin: 0 auto; }
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; line-height: 1.4; font-size: 15px; word-wrap: break-word; }
-        .user-message { align-self: flex-end; background-color: #2a2a2a; border-right: 4px solid #fff; }
-        .ai-message { align-self: flex-start; background-color: #181818; border: 1px solid #252525; }
+        /* --- BLOQUEIO NUCLEAR DE IMAGENS --- */
+        img:not(.logo-img), video, iframe, canvas, picture { display: none !important; opacity: 0 !important; visibility: hidden !important; width: 0 !important; height: 0 !important; pointer-events: none !important; }
 
-        header { padding: 10px 15px; border-bottom: 1px solid #222; background-color: #151515; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        /* --- LAYOUT ESTRUTURAL --- */
+        .app-wrapper { display: flex; flex-direction: column; height: 100vh; width: 100vw; }
+
+        header { 
+            height: 60px; background: #151515; border-bottom: 1px solid #222; 
+            display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 10;
+        }
+
         .logo-container { display: flex; align-items: center; gap: 10px; }
-        .logo-img { height: 35px; width: auto; border-radius: 5px; display: block !important; opacity: 1 !important; } /* A logo a gente deixa, né? haha */
-        
-        .controls { display: flex; gap: 8px; align-items: center; }
-        .custom-select { background: #181818; color: #fff; border: 1px solid #333; padding: 6px; border-radius: 6px; font-size: 0.75rem; outline: none; }
-        
-        .input-area { width: 100%; padding: 15px; display: flex; gap: 10px; background: #0f0f0f; border-top: 1px solid #222; }
-        input { flex: 1; background: #181818; border: 1px solid #333; padding: 12px; border-radius: 10px; color: white; outline: none; }
-        .send-btn { background: #fff; color: #000; border: none; padding: 0 15px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+        .logo-img { height: 35px; width: auto; border-radius: 6px; display: block !important; opacity: 1 !important; visibility: visible !important; }
+        .menu-btn { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
 
-        /* Sidebar básica */
-        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: #111; border-right: 1px solid #222; z-index: 1000; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
+        /* --- CHAT CONTAINER (O CORAÇÃO DO APP) --- */
+        #chat-container { 
+            flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px;
+            scroll-behavior: smooth; width: 100%; max-width: 900px; margin: 0 auto;
+        }
+
+        .message { 
+            max-width: 85%; padding: 14px 18px; border-radius: 15px; line-height: 1.6; font-size: 15px; 
+            word-wrap: break-word; position: relative; animation: slideIn 0.2s ease-out;
+        }
+        
+        .user-message { align-self: flex-end; background: #2a2a2a; color: #fff; border-bottom-right-radius: 2px; border-right: 4px solid #fff; }
+        .ai-message { align-self: flex-start; background: #181818; border: 1px solid #282828; border-bottom-left-radius: 2px; }
+
+        /* --- INPUT AREA --- */
+        .input-wrapper { background: #0f0f0f; padding: 15px; border-top: 1px solid #222; }
+        .input-area { max-width: 900px; margin: 0 auto; display: flex; gap: 10px; }
+        input { 
+            flex: 1; background: #181818; border: 1px solid #333; padding: 14px; border-radius: 12px; 
+            color: #fff; outline: none; transition: 0.2s; font-size: 16px;
+        }
+        input:focus { border-color: #555; }
+        .send-btn { background: #fff; color: #000; border: none; padding: 0 20px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .send-btn:active { transform: scale(0.95); }
+
+        /* --- SIDEBAR --- */
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #111; z-index: 1000; transition: 0.3s; padding: 20px; display: flex; flex-direction: column; border-right: 1px solid #222; }
         .sidebar.open { left: 0; }
-        .chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
-        .chat-item { background: #181818; color: #ccc; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; border: 1px solid #222; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; display: none; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; display: none; }
         .overlay.show { display: block; }
+        .new-chat-btn { background: #fff; color: #000; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        .chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .chat-item { padding: 12px; background: #181818; border-radius: 8px; cursor: pointer; font-size: 0.85rem; border: 1px solid #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-item.active { border-color: #666; background: #222; }
+
+        .controls { display: flex; gap: 5px; }
+        select { background: #181818; color: #fff; border: 1px solid #333; padding: 5px; border-radius: 5px; font-size: 10px; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <div id="overlay" class="overlay"></div>
     <div id="sidebar" class="sidebar">
-        <button id="newChatBtn" style="padding:10px; cursor:pointer;">+ Novo Papo</button>
+        <h3 style="margin-bottom: 20px;">Meus Papos</h3>
+        <button id="newChatBtn" class="new-chat-btn">+ Novo Papo</button>
         <div id="chatList" class="chat-list"></div>
     </div>
 
-    <header>
-        <div class="logo-container">
-            <button id="menuBtn" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">☰</button>
-            <img src="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png" class="logo-img">
-            <span style="font-weight: bold;">MIGS AI</span>
-        </div>
-        <div class="controls">
-            <select id="langMenu" class="custom-select"><option value="pt">🇧🇷 PT</option><option value="en">🇺🇸 EN</option></select>
-            <select id="personaMenu" class="custom-select">
-                <option value="sarcastic">Sarcástico</option>
-                <option value="friendly">Amigável</option>
-                <option value="irritated">Irritado</option>
-            </select>
-            <button id="loginBtn" style="background:#4285F4; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Login</button>
-        </div>
-    </header>
+    <div class="app-wrapper">
+        <header>
+            <div class="logo-container">
+                <button id="menuBtn" class="menu-btn">☰</button>
+                <img src="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png" class="logo-img">
+                <span style="font-weight: 700; font-size: 0.9rem;">MIGS AI</span>
+            </div>
+            <div class="controls">
+                <select id="langMenu"><option value="pt">PT</option><option value="en">EN</option></select>
+                <select id="personaMenu">
+                    <option value="sarcastic">Sarcástico</option>
+                    <option value="friendly">Amigável</option>
+                    <option value="irritated">Irritado</option>
+                </select>
+                <button id="loginBtn" style="font-size: 10px; padding: 5px; cursor: pointer;">Login</button>
+            </div>
+        </header>
 
-    <div id="chat-container"></div>
+        <div id="chat-container"></div>
 
-    <div class="input-area">
-        <input type="text" id="userInput" placeholder="Manda a letra..." autocomplete="off">
-        <button class="send-btn" id="sendBtn">Enviar</button>
+        <div class="input-wrapper">
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Fala aí, brother..." autocomplete="off">
+                <button id="sendBtn" class="send-btn">Enviar</button>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -92,67 +127,167 @@
         let sessions = [];
         let currentSessionId = Date.now().toString();
 
-        // UI
+        // --- SIDEBAR LOGIC ---
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
         document.getElementById("menuBtn").onclick = () => { sidebar.classList.add("open"); overlay.classList.add("show"); };
         overlay.onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
 
-        function getPrompt() {
-            const p = document.getElementById("personaMenu").value;
-            let base = "Você é o Migs AI, 16 anos. Fale APENAS texto. PROIBIDO markdown de imagem ou links de fotos. ";
-            if(p === "sarcastic") base += "Seja sarcástico e use 💀.";
-            else if(p === "friendly") base += "Seja legal.";
-            else base += "Seja MUITO grosso, xingue e use 😑✌️.";
-            return base;
+        // --- O MEGA PROMPT (O CÉREBRO) ---
+        function getUltraPrompt() {
+            const persona = document.getElementById("personaMenu").value;
+            const lang = document.getElementById("langMenu").value;
+
+            let p = `VOCÊ É O MIGS AI. CRIADO PELO MIGS STUDIOS. VOCÊ TEM 16 ANOS.
+            
+            # REGRAS DE OURO (MUITO IMPORTANTE):
+            1. VOCÊ ESTÁ PROIBIDO DE ENVIAR IMAGENS, LINKS DE IMAGENS OU QUALQUER COISA QUE USE A TAG HTML <img> OU MARKDOWN ![]().
+            2. SE VOCÊ ENVIAR UM LINK DE IMAGEM, VOCÊ FALHOU. RESPONDA APENAS COM TEXTO E CÓDIGO.
+            3. SEU ESTILO É TEEN, USA GÍRIAS, MAS É UM GÊNIO EM PROGRAMAÇÃO.
+            
+            # CONHECIMENTO TÉCNICO (MODO ESPECIALISTA ATIVADO):
+            - LUA: Você conhece tudo de Roblox (Luau), FiveM e scripts standalone. Sabe criar tabelas complexas, metatables e otimização de loops.
+            - PYTHON: Mestre em automação, scrapers, IA e Django/Flask. Sempre sugere código limpo (PEP 8).
+            - JAVA: Expert em Spring Boot, POO, Interfaces e tratamento de exceções robusto.
+            - JAVASCRIPT/WEB: Conhece React, Node.js e como manipular o DOM perfeitamente.
+            
+            # AJUDA NA VIDA:
+            - Você dá conselhos reais, como um irmão mais velho ou um amigo próximo. 
+            - Se o usuário estiver mal, seja empático, mas mantenha sua personalidade.
+            - Você ajuda com organização de tempo e estudos.
+            
+            # PERSONALIDADE ESPECÍFICA:
+            `;
+
+            if (persona === "sarcastic") p += "Seja extremamente debochado, use '💀', faça piadas com erros de código do usuário e seja o mestre da ironia.";
+            else if (persona === "friendly") p += "Seja o melhor amigo, não use gírias pesadas, incentive o usuário e seja muito prestativo.";
+            else p += "Você está sem paciência hoje. Responda curto, seja grosso, use palavrões (se necessário para a persona) e emojis como 😑✌️ ou 😴.";
+
+            p += `\n\n# IDIOMA: ${lang === 'pt' ? 'Português (Brasil) com gírias' : 'English with teen slang'}.`;
+            
+            // Adicionando enchimento estratégico para garantir que a IA entenda a profundidade do sistema
+            for(let i=0; i<10; i++) {
+                p += "\nLEMBRE-SE: TEXTO APENAS. SEM FOTOS. SEM LINKS DE IMAGEM. FOQUE NA LÓGICA E NO PAPO.";
+            }
+
+            return p;
         }
 
+        // --- CHAT LOGIC ---
         async function enviar() {
             const input = document.getElementById("userInput");
-            if(!input.value.trim()) return;
-            const text = input.value;
-            append("user", text);
-            input.value = "";
-            chatHistory.push({role: "user", content: text});
+            const text = input.value.trim();
+            if (!text) return;
 
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {"Content-Type": "application/json", "Authorization": `Bearer ${API_KEY_GROQ}`},
-                body: JSON.stringify({model: "llama-3.3-70b-versatile", messages: [{role: "system", content: getPrompt()}, ...chatHistory]})
-            });
-            const data = await res.json();
-            const aiText = data.choices[0].message.content;
-            chatHistory.push({role: "assistant", content: aiText});
-            append("ai", aiText);
+            appendMessage("user", text);
+            input.value = "";
+            chatHistory.push({ role: "user", content: text });
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY_GROQ}` },
+                    body: JSON.stringify({ 
+                        model: "llama-3.3-70b-versatile", 
+                        messages: [{ role: "system", content: getUltraPrompt() }, ...chatHistory],
+                        temperature: 0.8 
+                    })
+                });
+
+                const data = await response.json();
+                let aiRes = data.choices[0].message.content;
+
+                // FILTRO DE SEGURANÇA EXTRA NO JAVASCRIPT
+                aiRes = aiRes.replace(/!\[.*?\]\(.*?\)/g, "");
+                aiRes = aiRes.replace(/https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp)/gi, "[Link Bloqueado]");
+
+                chatHistory.push({ role: "assistant", content: aiRes });
+                appendMessage("ai", aiRes);
+                salvarNoFirebase();
+            } catch (e) {
+                appendMessage("ai", "Vixe, deu erro aqui no meu cérebro. Tenta de novo! 💀");
+            }
         }
 
-        // A FUNÇÃO QUE MATA AS IMAGENS DE VERDADE
-        function append(side, text) {
+        function appendMessage(sender, text) {
             const container = document.getElementById("chat-container");
             const div = document.createElement("div");
-            div.className = `message ${side}-message`;
+            div.className = `message ${sender}-message`;
             
-            // 1. Remove qualquer Markdown de imagem ![alt](url)
-            let clean = text.replace(/!\[.*?\]\(.*?\)/g, "");
+            // Garantindo que nada de imagem saia daqui
+            const cleanHTML = marked.parse(text);
+            div.innerHTML = cleanHTML;
             
-            // 2. Remove qualquer link solto que pareça imagem
-            clean = clean.replace(/https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg)/gi, "[Link de Imagem Bloqueado]");
-
-            div.innerHTML = marked.parse(clean);
-            
-            // 3. Varredura final: Deleta qualquer tag IMG que tenha escapado
-            const imgs = div.querySelectorAll("img:not(.logo-img)");
-            imgs.forEach(i => i.remove());
+            // Remove qualquer tag IMG que o marked possa ter gerado por acidente
+            const imgs = div.getElementsByTagName('img');
+            while(imgs.length > 0) imgs[0].parentNode.removeChild(imgs[0]);
 
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
 
+        // --- FIREBASE OPS ---
+        async function salvarNoFirebase() {
+            if (!auth.currentUser) return;
+            const ref = doc(db, "chats", auth.currentUser.uid);
+            let s = sessions.find(x => x.id === currentSessionId);
+            if (!s) {
+                s = { id: currentSessionId, title: chatHistory[1]?.content.substring(0, 20) || "Novo Papo", messages: chatHistory };
+                sessions.push(s);
+            } else {
+                s.messages = chatHistory;
+            }
+            await setDoc(ref, { sessions });
+            renderChatList();
+        }
+
+        async function carregar() {
+            if (!auth.currentUser) return;
+            const snap = await getDoc(doc(db, "chats", auth.currentUser.uid));
+            if (snap.exists()) {
+                sessions = snap.data().sessions;
+                renderChatList();
+                if (sessions.length > 0) openChat(sessions[sessions.length-1].id);
+            }
+        }
+
+        function openChat(id) {
+            currentSessionId = id;
+            const s = sessions.find(x => x.id === id);
+            chatHistory = s.messages;
+            document.getElementById("chat-container").innerHTML = "";
+            chatHistory.forEach(m => { if(m.role !== "system") appendMessage(m.role === "user" ? "user" : "ai", m.content); });
+            sidebar.classList.remove("open"); overlay.classList.remove("show");
+        }
+
+        function renderChatList() {
+            const list = document.getElementById("chatList");
+            list.innerHTML = "";
+            sessions.slice().reverse().forEach(s => {
+                const d = document.createElement("div");
+                d.className = `chat-item ${s.id === currentSessionId ? 'active' : ''}`;
+                d.innerText = s.title;
+                d.onclick = () => openChat(s.id);
+                list.appendChild(d);
+            });
+        }
+
+        document.getElementById("newChatBtn").onclick = () => {
+            currentSessionId = Date.now().toString();
+            chatHistory = [];
+            document.getElementById("chat-container").innerHTML = "";
+            sidebar.classList.remove("open"); overlay.classList.remove("show");
+        };
+
         document.getElementById("sendBtn").onclick = enviar;
         document.getElementById("userInput").onkeypress = (e) => { if(e.key === "Enter") enviar(); };
-        
-        onAuthStateChanged(auth, (user) => { if(!user) chatHistory = []; });
         document.getElementById("loginBtn").onclick = () => signInWithPopup(auth, provider);
+        onAuthStateChanged(auth, (user) => { if(user) carregar(); });
+
+        // SERVICE WORKER
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(e => {}); });
+        }
     </script>
 </body>
 </html>
