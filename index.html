@@ -80,6 +80,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { 
             getAuth, 
+            signInWithPopup,      // Adicionado o Popup para funcionar liso no site
             signInWithRedirect, 
             getRedirectResult, 
             GoogleAuthProvider, 
@@ -130,18 +131,30 @@
             return prompt;
         }
 
-        // --- SISTEMA DE LOGIN BLINDADO (Local Persistence + Redirect) ---
+        // --- SISTEMA DE LOGIN HÍBRIDO (Tenta Popup no Site, Redirect no App) ---
         document.getElementById("loginBtn").onclick = async () => {
             try {
+                // Garante que a memória não seja apagada ao atualizar a página
                 await setPersistence(auth, browserLocalPersistence);
-                await signInWithRedirect(auth, provider);
+                
+                // Tenta o login com Popup primeiro (Resolve o problema da sua mãe no site)
+                await signInWithPopup(auth, provider);
+                
             } catch (error) {
-                console.error("Erro no login:", error);
-                alert("Mano, deu erro ao tentar logar. Tenta de novo!");
+                console.warn("Popup bloqueado. Tentando plano B (Redirect)...");
+                
+                // Se o popup for bloqueado (comum no WebtoApp), dispara o Redirect
+                try {
+                    await signInWithRedirect(auth, provider);
+                } catch (errRedirect) {
+                    console.error("Erro no redirect:", errRedirect);
+                    alert("Mano, teu navegador tá bloqueando os cookies de login. Libera lá nas configs!");
+                }
             }
         };
 
-        getRedirectResult(auth).catch((error) => console.error("Erro no redirect:", error));
+        // Captura a volta do Redirect (caso o plano B seja usado)
+        getRedirectResult(auth).catch((error) => console.error("Erro no retorno do redirect:", error));
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -166,7 +179,6 @@
             const docSnap = await getDoc(doc(db, "chats", currentUser.uid));
             if (docSnap.exists()) {
                 chatHistory = docSnap.data().messages;
-                // Garante que o prompt atual obedece aos menus selecionados na tela
                 if(chatHistory.length > 0 && chatHistory[0].role === "system") {
                     chatHistory[0].content = getSystemPrompt();
                 }
@@ -203,7 +215,6 @@
             input.value = "";
             chatHistory.push({ role: "user", content: text });
 
-            // Atualiza a personalidade/idioma antes de enviar
             chatHistory[0].content = getSystemPrompt();
 
             try {
