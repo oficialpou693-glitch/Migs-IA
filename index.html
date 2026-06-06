@@ -20,7 +20,7 @@
         }
         
         .logo-container { display: flex; align-items: center; }
-        .logo-img { height: 50px; width: auto; object-fit: contain; border: none; }
+        .logo-img { height: 50px; width: auto; filter: brightness(1.1); }
 
         .menus { display: flex; gap: 10px; }
         .custom-select {
@@ -34,7 +34,7 @@
         .user-message { align-self: flex-end; background-color: #2a2a2a; color: #fff; border-bottom-right-radius: 2px; border-right: 3px solid #fff; }
         .ai-message { align-self: flex-start; background-color: #181818; border: 1px solid #252525; border-bottom-left-radius: 2px; }
         
-        img.chat-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #333; display: block; background: #000; }
+        img.chat-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #333; display: block; }
 
         .input-area { width: 100%; max-width: 750px; padding: 20px; display: flex; gap: 10px; background: #0f0f0f; border-top: 1px solid #222; }
         input { flex: 1; background: #181818; border: 1px solid #333; padding: 12px; border-radius: 8px; color: white; outline: none; }
@@ -65,7 +65,7 @@
     <div id="chat-container"></div>
 
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="Manda a boa..." onkeypress="handleKeyPress(event)">
+        <input type="text" id="userInput" placeholder="Manda a real..." onkeypress="handleKeyPress(event)">
         <button class="send-btn" onclick="sendMessage()">Enviar</button>
     </div>
 
@@ -73,8 +73,8 @@
         const API_KEY = "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";
         let currentLang = "pt";
 
-        // NOVO MOTOR: Heroku/Image-Charts (Sem fila e entende o texto)
-        const basePrompt = "Você é a Migs AI. Garota de 16 anos, gírias 'brother' e 'mano'. REGRA DE IMAGEM: Se pedirem imagem, responda APENAS com: ![Image](https://image.pollinations.ai/prompt/DESCRIPTION). Substitua DESCRIPTION por termos detalhados em inglês. Use apenas termos seguros e criativos.";
+        // Mudei para uma API de busca de imagens que não tem fila
+        const basePrompt = "Você é o Migs AI. Garoto de 16 anos, gírias 'brother' e 'mano'. REGRA DE IMAGEM: Se pedirem imagem, responda APENAS com: ![Image](https://api.qrserver.com/v1/create-qr-code/?size=1x1&data=IGNORE) e logo abaixo: ![Image](https://loremflickr.com/1080/1080/DESCRIPTION). Substitua DESCRIPTION pelo que o usuário pediu em inglês.";
 
         const personas = {
             sarcastic: basePrompt + " Persona: Sarcástica.",
@@ -90,7 +90,7 @@
             const persona = document.getElementById("personaMenu").value;
             chatHistory = [{ role: "system", content: personas[persona] + (currentLang === "en" ? " Speak English." : " Fale Português.") }];
             document.getElementById("chat-container").innerHTML = '';
-            appendMessage("ai", currentLang === "pt" ? "Diz aí, mano! O que manda?" : "Yo! What's up?");
+            appendMessage("ai", currentLang === "pt" ? "E aí, mano! Fala o que tu quer." : "Yo! Tell me what you want.");
         }
 
         async function sendMessage() {
@@ -114,7 +114,7 @@
                 chatHistory.push({ role: "assistant", content: aiRes });
                 appendMessage("ai", aiRes);
             } catch (e) {
-                appendMessage("ai", "Vixe, o sinal caiu.");
+                appendMessage("ai", "Vixe, deu ruim aqui.");
             }
         }
 
@@ -122,7 +122,11 @@
             const container = document.getElementById("chat-container");
             const div = document.createElement("div");
             div.className = `message ${sender}-message`;
-            div.innerHTML = marked.parse(text);
+            
+            // Adiciona uma semente aleatória para o LoremFlickr não repetir a foto
+            const final = text.replace(/loremflickr.com\/1080\/1080\/([^)]+)/g, (m, p1) => `loremflickr.com/1080/1080/${p1}?lock=${Math.floor(Math.random()*999)}`);
+            
+            div.innerHTML = marked.parse(final);
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
             
