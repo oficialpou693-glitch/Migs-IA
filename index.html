@@ -25,7 +25,6 @@
             background: #181818; color: #fff; border: 1px solid #333; padding: 8px 12px;
             border-radius: 6px; outline: none; cursor: pointer; font-size: 0.9rem; transition: 0.3s;
         }
-        .custom-select:hover { border-color: #fff; }
 
         #chat-container { flex: 1; width: 100%; max-width: 750px; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
 
@@ -84,16 +83,17 @@
         let currentLang = "pt";
 
         const uiText = {
-            pt: { placeholder: "Escreva o que quiser...", send: "Enviar", copy: "Copiar", copied: "Copiado!", typing: "Processando...", error: "Erro na Groq.", msgs: { sarcastic: "Fala aí, chefe.", friendly: "Como posso ajudar, mano? ✨", irritated: "Fala logo, tô ocupada." } },
-            en: { placeholder: "Type something...", send: "Send", copy: "Copy", copied: "Copied!", typing: "Processing...", error: "Groq Error.", msgs: { sarcastic: "What's up, boss.", friendly: "How can I help you, bro? ✨", irritated: "Be quick, I'm busy." } }
+            pt: { placeholder: "Escreva o que quiser...", send: "Enviar", copy: "Copiar", copied: "Copiado!", typing: "Migs está pensando...", error: "Erro na conexão.", msgs: { sarcastic: "Fala aí, brother.", friendly: "Oi! Como posso te ajudar hoje? ✨", irritated: "O que você quer agora?" } },
+            en: { placeholder: "Type here...", send: "Send", copy: "Copy", copied: "Copied!", typing: "Migs is thinking...", error: "Connection error.", msgs: { sarcastic: "Yo, what's up.", friendly: "Hey! How can I help? ✨", irritated: "What do you want?" } }
         };
 
-        const basePrompt = "Você é a Migs AI. Tem 16 anos, usa gírias como 'brother' e 'mano'. Tutora sênior de programação. REGRA DE IMAGEM: Se pedirem foto/desenho/imagem, responda APENAS com o Markdown: ![Image](https://image.pollinations.ai/prompt/DESCRIPTION?width=1080&height=1080&nologo=true&seed=RAND). Substitua DESCRIPTION por termos em inglês com hífens e RAND por um número aleatório. Não fale nada além do link.";
+        // NOVO PROMPT: Usando Unsplash para estabilidade total
+        const basePrompt = "Você é a Migs AI. Tem 16 anos, usa gírias como 'brother' e 'mano'. Tutora de programação. REGRA DE IMAGEM: Se o usuário pedir para ver uma foto, imagem ou desenho, você deve responder APENAS com o link Markdown: ![Image](https://source.unsplash.com/featured/1080x1080?DESCRIPTION). Substitua DESCRIPTION por termos em inglês que descrevam a imagem. Isso é 100% estável.";
 
         const personas = {
-            sarcastic: basePrompt + " Persona: Sarcástica e brother.",
-            friendly: basePrompt + " Persona: Gentil e amigável.",
-            irritated: basePrompt + " Persona: Irritada mas entrega o código certo."
+            sarcastic: basePrompt + " Persona: Sarcástica e direta.",
+            friendly: basePrompt + " Persona: Muito amigável e fofa.",
+            irritated: basePrompt + " Persona: Muito brava e sem paciência."
         };
 
         let chatHistory = [];
@@ -155,10 +155,7 @@
             if (id) div.id = id;
 
             if (sender === "ai" && !id) {
-                // Força um seed aleatório novo em cada renderização
-                const processedText = text.replace(/seed=RAND/g, `seed=${Math.floor(Math.random() * 99999)}`);
-                div.innerHTML = marked.parse(processedText);
-                
+                div.innerHTML = marked.parse(text);
                 div.querySelectorAll('pre').forEach(pre => {
                     const btn = document.createElement('button');
                     btn.className = 'copy-btn';
@@ -181,5 +178,4 @@
         function handleKeyPress(e) { if (e.key === "Enter") sendMessage(); }
     </script>
 </body>
-            </html>
-            
+</html>
