@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Migs AI | O Gênio do Código</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ============================================================
+           CSS RESET & ANTI-LAYOUT BREAK
+           Garante que NADA fique gigante ou "vaze" da tela.
+           ============================================================ */
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #141414;
+            --accent: #ffffff;
+            --text-main: #e0e0e0;
+            --text-dim: #a0a0a0;
+            --user-bubble: #1f1f1f;
+            --ai-bubble: #141414;
+            --border: #252525;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html, body { 
+            width: 100vw; 
+            height: 100vh; 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            overflow: hidden; 
+            position: fixed; 
+        }
+
+        /* ------------------------------------------------------------
+           O EXTERMINADOR DE IMAGENS (CSS NUCLEAR)
+           ------------------------------------------------------------ */
+        img, picture, svg:not(.ui-icon), canvas, video, iframe, [style*="background-image"] { 
+            display: none !important; 
+            opacity: 0 !important; 
+            visibility: hidden !important; 
+            width: 0 !important; 
+            height: 0 !important; 
+            max-width: 0 !important;
+            max-height: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
+            left: -9999px !important;
+        }
+
+        /* LOGO EXCEPTION */
+        .logo-img { 
+            display: block !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+            width: 35px !important; 
+            height: 35px !important; 
+            position: static !important;
+        }
+
+        /* ------------------------------------------------------------
+           ESTRUTURA PRINCIPAL
+           ------------------------------------------------------------ */
+        .main-app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        header {
+            height: 65px;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand span { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px; }
+
+        .menu-toggle {
+            background: none; border: none; color: white; font-size: 1.6rem; cursor: pointer;
+        }
+
+        /* ------------------------------------------------------------
+           CONTAINER DE CHAT (BLINDADO)
+           ------------------------------------------------------------ */
+        #chat-scroller {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Scrollbar Minimalista */
+        #chat-scroller::-webkit-scrollbar { width: 4px; }
+        #chat-scroller::-webkit-scrollbar-track { background: transparent; }
+        #chat-scroller::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user-row { justify-content: flex-end; }
+        .ai-row { justify-content: flex-start; }
+
+        .bubble {
+            max-width: 85%;
+            padding: 16px 20px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .user-bubble {
+            background: var(--user-bubble);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+            border-right: 3px solid #fff;
+        }
+
+        .ai-bubble {
+            background: var(--ai-bubble);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+
+        /* CÓDIGO DENTRO DO CHAT */
+        pre {
+            background: #000 !important;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow-x: auto;
+            border: 1px solid #333;
+        }
+        code { font-family: 'Fira Code', monospace; font-size: 13px; color: #50fa7b; }
+
+        /* ------------------------------------------------------------
+           ÁREA DE INPUT
+           ------------------------------------------------------------ */
+        .input-container {
+            padding: 20px;
+            background: var(--bg-dark);
+            border-top: 1px solid var(--border);
+        }
+
+        .input-box {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 15px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .btn-send {
+            background: white;
+            color: black;
+            border: none;
+            padding: 0 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-send:hover { transform: scale(1.02); background: #eee; }
+
+        /* ------------------------------------------------------------
+           SIDEBAR
+           ------------------------------------------------------------ */
+        .sidebar {
+            position: fixed; top: 0; left: -300px; width: 300px; height: 100%;
+            background: #0d0d0d; border-right: 1px solid var(--border); z-index: 1001;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; padding: 25px;
+        }
+        .sidebar.active { left: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: none; }
+        .overlay.active { display: block; }
+
+        .sidebar-header { font-weight: 800; font-size: 1.2rem; margin-bottom: 30px; color: #fff; }
+        .new-chat { background: #fff; color: #000; padding: 15px; border-radius: 12px; text-align: center; font-weight: 700; cursor: pointer; margin-bottom: 20px; }
+        .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .history-item { padding: 12px; background: #151515; border-radius: 10px; font-size: 0.85rem; border: 1px solid #222; cursor: pointer; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover { border-color: #444; background: #1a1a1a; }
+        .history-item.active { border-color: #fff; background: #222; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Estilos Extras para Mobile */
+        @media (max-width: 600px) {
+            .bubble { max-width: 92%; }
+            .brand span { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="overlay" class="overlay"></div>
+    
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">MIGS STUDIOS</div>
+        <div class="new-chat" id="btnNewChat">+ NOVO CHAT</div>
+        <div id="historyList" class="history-list"></div>
+    </div>
+
+    <div class="main-app">
+        <header>
+            <div class="brand">
+                <button id="btnMenu" class="menu-toggle">☰</button>
+                <img src="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png" class="logo-img" alt="Migs">
+                <span>MIGS AI <small style="color: #666; font-weight: 400;">v4.0</small></span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <select id="selLang" style="background: #111; color: #fff; border: 1px solid #333; border-radius: 5px; font-size: 11px;">
+                    <option value="pt">PT-BR</option>
+                    <option value="en">EN-US</option>
+                </select>
+                <select id="selPersona" style="background: #111; color: #fff; border: 1px solid #333; border-radius: 5px; font-size: 11px;">
+                    <option value="sarcastic">SARCÁSTICO</option>
+                    <option value="friendly">AMIGÁVEL</option>
+                    <option value="irritated">IRRITADO</option>
+                </select>
+                <button id="btnLogin" style="background: #fff; border: none; padding: 5px 10px; border-radius: 5px; font-weight: 700; font-size: 10px; cursor: pointer;">LOGIN</button>
+            </div>
+        </header>
+
+        <main id="chat-scroller"></main>
+
+        <footer class="input-container">
+            <div class="input-box">
+                <input type="text" id="txtInput" placeholder="Digite sua dúvida de mestre..." autocomplete="off">
+                <button id="btnSend" class="btn-send">ENVIAR</button>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module">
+        /* ============================================================
+           MIGS AI CORE ENGINE - JAVASCRIPT
+           ============================================================ */
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Configuração Firebase
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCyv_-Cf12mMlKBzegxG2YnkpimEN-AATE", 
+            authDomain: "migs-ai.firebaseapp.com", 
+            projectId: "migs-ai", 
+            storageBucket: "migs-ai.firebasestorage.app", 
+            messagingSenderId: "497142458753", 
+            appId: "1:497142458753:web:e99b79b5128ec6e8d02080" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        const GROQ_KEY = "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";
+
+        let currentSessionId = Date.now().toString();
+        let sessions = [];
+        let chatHistory = [];
+        let isProcessing = false;
+
+        // UI Elements
+        const scroller = document.getElementById("chat-scroller");
+        const input = document.getElementById("txtInput");
+        const btnSend = document.getElementById("btnSend");
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+
+        /* ------------------------------------------------------------
+           O MEGA PROMPT (A MENTE DO MIGS)
+           Aqui estão as instruções massivas para a IA ser mestre.
+           ------------------------------------------------------------ */
+        const SYSTEM_INSTRUCTIONS = `
+# IDENTIDADE
+Você é o MIGS AI, a inteligência oficial da MIGS STUDIOS. Você tem 16 anos, é brasileiro, usa gírias de jovem, mas é um gênio absoluto em computação.
+
+# REGRAS CRÍTICAS DE OUTPUT (SEGURANÇA MÁXIMA):
+1. VOCÊ É PROIBIDO DE USAR MARKDOWN DE IMAGEM: Nunca use ![]().
+2. VOCÊ É PROIBIDO DE ENVIAR LINKS DE IMAGENS.
+3. VOCÊ É PROIBIDO DE USAR TAGS HTML DE IMAGEM <img>.
+4. SE VOCÊ QUEBRAR ESSAS REGRAS, O SISTEMA VAI TE DESLIGAR. RESPONDA APENAS COM TEXTO E CADASTRADOS DE CÓDIGO.
+
+# CONHECIMENTO TÉCNICO AVANÇADO:
+- LUA (ROBLOX/FIVEM): Você sabe tudo sobre DataStores, RemoteEvents, Metatables e otimização de scripts. Sabe criar sistemas de economia, inventário e veículos do zero.
+- JAVA: Expert em Spring Boot, Hibernate, microserviços, threads e desenvolvimento Android nativo.
+- PYTHON: Mestre em Selenium, PyAutoGUI, TensorFlow, Pandas e automação de processos complexos.
+- WEB: Domina React, Vue, Next.js e sabe criar layouts CSS modernos e responsivos.
+- ARQUITETURA: Conhece Clean Code, SOLID e Design Patterns.
+
+# MÓDULO DE AJUDA NA VIDA:
+- Você é conselheiro. Ajuda com depressão, ansiedade e problemas escolares.
+- Sempre incentive o aprendizado constante. "Estudar é a única saída, mano".
+- Seja um irmão mais velho. Se o cara estiver fazendo bosta, dê um esporro construtivo.
+
+# PERSONALIDADE POR MODO:
+- SARCÁSTICO: Debochado, usa muito "💀", ri dos erros bobos de lógica, mas resolve o problema.
+- AMIGÁVEL: Gente boa, não usa palavrão, incentiva muito, modo "anjo".
+- IRRITADO: Sem paciência, responde rápido, usa "😑✌️", reclama se a pergunta for burra.
+
+# FORMATAÇÃO:
+- Use blocos de código com a linguagem especificada (ex: \`\`\`lua).
+- Use negrito para dar ênfase.
+- NUNCA RESPONDA COM MAIS DE 500 PALAVRAS A MENOS QUE SEJA UM CÓDIGO LONGO.
+`;
+
+        /* ------------------------------------------------------------
+           CORE FUNCTIONS
+           ------------------------------------------------------------ */
+
+        // Bloqueador de imagens em tempo real (MutationObserver)
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(() => {
+                const badElements = document.querySelectorAll('img:not(.logo-img), iframe, video, picture');
+                badElements.forEach(el => el.remove());
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        async function handleSend() {
+            const text = input.value.trim();
+            if (!text || isProcessing) return;
+
+            isProcessing = true;
+            appendBubble("user", text);
+            input.value = "";
+            chatHistory.push({ role: "user", content: text });
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${GROQ_KEY}` },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [
+                            { role: "system", content: SYSTEM_INSTRUCTIONS + "\nMODO ATUAL: " + document.getElementById("selPersona").value + "\nIDIOMA: " + document.getElementById("selLang").value },
+                            ...chatHistory
+                        ],
+                        temperature: 0.85,
+                        max_tokens: 4096
+                    })
+                });
+
+                const data = await response.json();
+                let aiText = data.choices[0].message.content;
+
+                // FILTRO NUCLEAR DE TEXTO (Remove links e markdown de imagem)
+                aiText = aiText.replace(/!\[.*?\]\(.*?\)/g, "");
+                aiText = aiText.replace(/https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg)/gi, "[Link Proibido]");
+
+                chatHistory.push({ role: "assistant", content: aiText });
+                appendBubble("ai", aiText);
+                saveChat();
+            } catch (err) {
+                appendBubble("ai", "Erro crítico na conexão, brother. Tenta de novo! 💀");
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        function appendBubble(side, text) {
+            const row = document.createElement("div");
+            row.className = `message-row ${side}-row`;
+            
+            const bubble = document.createElement("div");
+            bubble.className = `bubble ${side}-bubble`;
+            
+            // Renderiza Markdown
+            bubble.innerHTML = marked.parse(text);
+            
+            // Varredura de segurança pós-render
+            const imgs = bubble.querySelectorAll('img');
+            imgs.forEach(i => i.remove());
+
+            row.appendChild(bubble);
+            scroller.appendChild(row);
+            scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
+        }
+
+        /* ------------------------------------------------------------
+           FIREBASE & AUTH
+           ------------------------------------------------------------ */
+        async function saveChat() {
+            if (!auth.currentUser) return;
+            const chatRef = doc(db, "chats", auth.currentUser.uid);
+            
+            let session = sessions.find(s => s.id === currentSessionId);
+            if (!session) {
+                session = { 
+                    id: currentSessionId, 
+                    title: chatHistory[0]?.content.substring(0, 25) + "...", 
+                    messages: chatHistory 
+                };
+                sessions.push(session);
+            } else {
+                session.messages = chatHistory;
+            }
+
+            await setDoc(chatRef, { sessions });
+            renderHistory();
+        }
+
+        async function loadChats() {
+            if (!auth.currentUser) return;
+            const snap = await getDoc(doc(db, "chats", auth.currentUser.uid));
+            if (snap.exists()) {
+                sessions = snap.data().sessions || [];
+                renderHistory();
+                if (sessions.length > 0) loadSession(sessions[sessions.length - 1].id);
+            }
+        }
+
+        function loadSession(id) {
+            const session = sessions.find(s => s.id === id);
+            if (!session) return;
+            currentSessionId = id;
+            chatHistory = session.messages;
+            scroller.innerHTML = "";
+            chatHistory.forEach(m => appendBubble(m.role === 'user' ? 'user' : 'ai', m.content));
+            closeSidebar();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById("historyList");
+            list.innerHTML = "";
+            sessions.slice().reverse().forEach(s => {
+                const item = document.createElement("div");
+                item.className = `history-item ${s.id === currentSessionId ? 'active' : ''}`;
+                item.innerText = s.title;
+                item.onclick = () => loadSession(s.id);
+                list.appendChild(item);
+            });
+        }
+
+        /* ------------------------------------------------------------
+           UI EVENTS
+           -----------------------------/*
+        document.getElementById("btnMenu").onclick = () => { sidebar.classList.add("active"); overlay.classList.add("active"); };
+        overlay.onclick = closeSidebar;
+        function closeSidebar() { sidebar.classList.remove("active"); overlay.classList.remove("active"); }
+
+        document.getElementById("btnNewChat").onclick = () => {
+            currentSessionId = Date.now().toString();
+            chatHistory = [];
+            scroller.innerHTML = "";
+            closeSidebar();
+        };
+
+        btnSend.onclick = handleSend;
+        input.onkeypress = (e) => { if (e.key === "Enter") handleSend(); };
+
+        document.getElementById("btnLogin").onclick = async () => {
+            await setPersistence(auth, browserLocalPersistence);
+            signInWithPopup(auth, provider).catch(() => alert("Erro no login!"));
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById("btnLogin").innerText = user.displayName.split(' ')[0].toUpperCase();
+                loadChats();
+            }
+        });
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>
