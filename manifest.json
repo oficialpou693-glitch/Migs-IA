@@ -7,9 +7,9 @@
   "theme_color": "#151515",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.jpg",
+      "src": "https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png",
       "sizes": "512x512",
-      "type": "image/jpg"
+      "type": "image/png"
     }
   ]
 }
