@@ -12,70 +12,49 @@
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body { background-color: #0f0f0f; color: #d1d1d1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; width: 100vw; }
-    
-    /* --- CHAT AREA (Ajustada para não expandir) --- */
-    #chat-container { 
-        flex: 1; 
-        width: 100%; 
-        overflow-y: auto; 
-        padding: 15px; 
-        display: flex; 
-        flex-direction: column; 
-        gap: 15px; 
-        max-width: 100%; /* Garante que não passe da largura da tela */
-        margin: 0 auto;
-    }
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: #0f0f0f; color: #d1d1d1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; width: 100vw; }
+        
+        /* --- EXTERMÍNIO DE IMAGENS VIA CSS --- */
+        .message img, img.chat-img { 
+            display: none !important; 
+            visibility: hidden !important; 
+            height: 0 !important; 
+            width: 0 !important; 
+        }
 
-    .message { 
-        max-width: 85%; 
-        padding: 12px 16px; 
-        border-radius: 12px; 
-        line-height: 1.4; 
-        font-size: 15px; 
-        word-wrap: break-word; /* Força quebra de texto longo */
-        word-break: break-word;
-        overflow-wrap: break-word;
-    }
+        #chat-container { flex: 1; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; max-width: 100%; margin: 0 auto; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; line-height: 1.4; font-size: 15px; word-wrap: break-word; word-break: break-word; }
+        .user-message { align-self: flex-end; background-color: #2a2a2a; border-right: 4px solid #fff; }
+        .ai-message { align-self: flex-start; background-color: #181818; border: 1px solid #252525; }
 
-    .user-message { align-self: flex-end; background-color: #2a2a2a; border-right: 4px solid #fff; }
-    .ai-message { align-self: flex-start; background-color: #181818; border: 1px solid #252525; }
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: #111; border-right: 1px solid #222; z-index: 1000; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
+        .sidebar.open { left: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; display: none; }
+        .overlay.show { display: block; }
+        
+        header { padding: 10px 15px; border-bottom: 1px solid #222; background-color: #151515; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .logo-container { display: flex; align-items: center; gap: 10px; }
+        .menu-btn { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+        .logo-img { height: 35px; width: auto; border-radius: 5px; }
+        .controls { display: flex; gap: 8px; align-items: center; }
+        .custom-select { background: #181818; color: #fff; border: 1px solid #333; padding: 6px; border-radius: 6px; font-size: 0.75rem; outline: none; }
+        .login-btn { background: #4285F4; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        .user-name { font-size: 0.75rem; color: #fff; font-weight: bold; display: none; }
 
-    /* --- FIX TOTAL DAS IMAGENS --- */
-    .message img { 
-        display: block;
-        max-width: 100% !important; /* Nunca maior que o balão */
-        max-height: 250px !important; /* Limita a altura para não ficar gigante */
-        width: auto !important;
-        height: auto !important;
-        border-radius: 8px; 
-        margin-top: 10px; 
-        object-fit: cover;
-        border: 1px solid #333;
-    }
-
-    /* Ajuste para telas muito pequenas */
-    @media (max-width: 480px) {
-        .message { max-width: 90%; font-size: 14px; }
-        .message img { max-height: 200px !important; }
-    }
-
-    /* [Resto do seu CSS de Sidebar e Header...] */
-    .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background-color: #111; border-right: 1px solid #222; z-index: 1000; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
-    .sidebar.open { left: 0; }
-    header { padding: 10px 15px; border-bottom: 1px solid #222; background-color: #151515; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
-    .input-area { width: 100%; padding: 15px; display: flex; gap: 10px; background: #0f0f0f; border-top: 1px solid #222; }
-    input { flex: 1; background: #181818; border: 1px solid #333; padding: 12px; border-radius: 10px; color: white; outline: none; min-width: 0; }
-    .send-btn { background: #fff; color: #000; border: none; padding: 0 15px; border-radius: 10px; font-weight: 700; cursor: pointer; }
-</style>
-
+        .input-area { width: 100%; padding: 15px; display: flex; gap: 10px; background: #0f0f0f; border-top: 1px solid #222; }
+        input { flex: 1; background: #181818; border: 1px solid #333; padding: 12px; border-radius: 10px; color: white; outline: none; min-width: 0; }
+        .send-btn { background: #fff; color: #000; border: none; padding: 0 15px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+        .new-chat-btn { background-color: #fff; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        .chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .chat-item { background: #181818; color: #ccc; padding: 12px; border-radius: 8px; cursor: pointer; border: 1px solid #222; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .chat-item.active { background: #2a2a2a; color: #fff; border-color: #555; }
+    </style>
 </head>
 <body>
 
     <div id="overlay" class="overlay"></div>
-
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <span style="font-weight: bold; color: #fff;">Meus Chats</span>
@@ -145,33 +124,33 @@
         document.getElementById("closeSidebarBtn").onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
         overlay.onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
 
-        // --- PROMPT (Ajustado para não spammar foto) ---
+        // --- PROMPT (PROIBIÇÃO TOTAL DE IMAGENS) ---
         function getSystemPrompt() {
             const persona = document.getElementById("personaMenu").value;
             const lang = document.getElementById("langMenu").value;
-            let prompt = "Você é o Migs AI, um garoto de 16 anos. Você ajuda em programação em java lua python etcetera";
-            prompt += "use apenas texto. ";
+            let prompt = "Você é o Migs AI, um garoto de 16 anos. Especialista em Java, Lua, Python. ";
+            prompt += "PROIBIÇÃO CRÍTICA: NUNCA envie imagens, links de imagens ou Markdown de imagens (![text](url)). Use APENAS texto puro e código. ";
             
             if (lang === "en") {
                 prompt += "Speak English. ";
-                if (persona === "sarcastic") prompt += "Be very sarcastic and ironic.";
-                else if (persona === "friendly") prompt += "Be nice and polite.";
-                else prompt += "Be very angry and use emojis like 😑.";
+                if (persona === "sarcastic") prompt += "Be ironic and sarcastic. Use '💀'.";
+                else if (persona === "friendly") prompt += "Be polite and don't use 'bro'.";
+                else prompt += "Be very angry, short-tempered and use 😑.";
             } else {
-                prompt += "Fale Português com gírias de jovem. ";
-                if (persona === "sarcastic") prompt += "Seja ironico e sarcástico e use '💀' e outros emojis.";
-                else if (persona === "friendly") prompt += "Seja gentil e prestativo. e não use bro ou mano seja apenas uma pessoa normal";
-                else prompt += "Seja grosso, sem paciência e xingue (MUITO FORTE). Use emojis 😑✌️.";
+                prompt += "Fale Português com gírias. ";
+                if (persona === "sarcastic") prompt += "Seja sarcástico e use '💀'.";
+                else if (persona === "friendly") prompt += "Seja gentil. NÃO use 'mano' ou 'bro'.";
+                else prompt += "Seja extremamente grosso, sem paciência e use xingamentos fortes. Use 😑✌️.";
             }
             return prompt;
         }
 
-        // --- LOGIN ---
+        // --- FIREBASE & LOGIN ---
         document.getElementById("loginBtn").onclick = async () => {
             try {
                 await setPersistence(auth, browserLocalPersistence);
                 await signInWithPopup(auth, provider);
-            } catch (e) { alert("Erro no login, brother!"); }
+            } catch (e) { alert("Erro no login!"); }
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -184,7 +163,6 @@
             } else { iniciarSemLogin(); }
         });
 
-        // --- CHATS ---
         async function salvarNoBanco() {
             if (!currentUser) return;
             let s = sessions.find(x => x.id === currentSessionId);
@@ -247,6 +225,7 @@
             chatHistory.forEach(m => { if (m.role !== "system") append(m.role === "user" ? "user" : "ai", m.content); });
         }
 
+        // --- ENVIO ---
         document.getElementById("sendBtn").onclick = enviar;
         document.getElementById("userInput").onkeypress = (e) => { if(e.key === "Enter") enviar(); };
 
@@ -269,19 +248,29 @@
                 chatHistory.push({ role: "assistant", content: ai });
                 append("ai", ai);
                 salvarNoBanco();
-            } catch (e) { append("ai", "Vixe, deu erro!"); }
+            } catch (e) { append("ai", "Erro na API!"); }
         }
 
+        // --- FILTRAGEM FINAL DE SEGURANÇA ---
         function append(side, text) {
             const cont = document.getElementById("chat-container");
             const d = document.createElement("div");
             d.className = `message ${side}-message`;
-            d.innerHTML = marked.parse(text);
+            
+            // Remove qualquer tag de imagem antes de converter para Markdown
+            const cleanText = text.replace(/!\[.*?\]\(.*?\)/g, "[Imagem Bloqueada]");
+            d.innerHTML = marked.parse(cleanText);
+            
+            // Segundo nível: Deleta qualquer elemento <img> que tenha sobrado
+            const images = d.getElementsByTagName('img');
+            while(images.length > 0) {
+                images[0].parentNode.removeChild(images[0]);
+            }
+
             cont.appendChild(d);
             cont.scrollTop = cont.scrollHeight;
         }
 
-        // SERVICE WORKER
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').catch(e => console.log(e));
