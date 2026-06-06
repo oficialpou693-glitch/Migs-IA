@@ -20,7 +20,7 @@
         }
         
         .logo-container { display: flex; align-items: center; }
-        .logo-img { height: 50px; width: auto; object-fit: contain; }
+        .logo-img { height: 50px; width: auto; object-fit: contain; border: none; }
 
         .menus { display: flex; gap: 10px; }
         .custom-select {
@@ -73,8 +73,8 @@
         const API_KEY = "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";
         let currentLang = "pt";
 
-        // Mudei a regra para usar o Pollinations com "nologo" e "p" (pro) para evitar filas e marcas d'água
-        const basePrompt = "Você é a Migs AI. Garota de 16 anos, gírias 'brother' e 'mano'. REGRA DE IMAGEM: Se pedirem imagem, responda APENAS com: ![Image](https://pollinations.ai/p/DESCRIPTION?width=1080&height=1080&nologo=true). Substitua DESCRIPTION por termos detalhados em inglês separados por %20.";
+        // NOVO MOTOR: Heroku/Image-Charts (Sem fila e entende o texto)
+        const basePrompt = "Você é a Migs AI. Garota de 16 anos, gírias 'brother' e 'mano'. REGRA DE IMAGEM: Se pedirem imagem, responda APENAS com: ![Image](https://image.pollinations.ai/prompt/DESCRIPTION). Substitua DESCRIPTION por termos detalhados em inglês. Use apenas termos seguros e criativos.";
 
         const personas = {
             sarcastic: basePrompt + " Persona: Sarcástica.",
@@ -90,7 +90,7 @@
             const persona = document.getElementById("personaMenu").value;
             chatHistory = [{ role: "system", content: personas[persona] + (currentLang === "en" ? " Speak English." : " Fale Português.") }];
             document.getElementById("chat-container").innerHTML = '';
-            appendMessage("ai", currentLang === "pt" ? "E aí, mano! O que vamos criar?" : "Yo! What are we creating?");
+            appendMessage("ai", currentLang === "pt" ? "Diz aí, mano! O que manda?" : "Yo! What's up?");
         }
 
         async function sendMessage() {
@@ -114,7 +114,7 @@
                 chatHistory.push({ role: "assistant", content: aiRes });
                 appendMessage("ai", aiRes);
             } catch (e) {
-                appendMessage("ai", "Sinal fraco, brother.");
+                appendMessage("ai", "Vixe, o sinal caiu.");
             }
         }
 
@@ -122,7 +122,6 @@
             const container = document.getElementById("chat-container");
             const div = document.createElement("div");
             div.className = `message ${sender}-message`;
-            
             div.innerHTML = marked.parse(text);
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
