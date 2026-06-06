@@ -485,7 +485,8 @@ Você é o MIGS AI, a inteligência oficial da MIGS STUDIOS. Você tem 16 anos, 
         /* ------------------------------------------------------------
            UI EVENTS
            -----------------------------/*
-        document.getElementById("btnMenu").onclick = () => { sidebar.classList.add("active"); overlay.classList.add("active"); };
+           
+                document.getElementById("btnMenu").onclick = () => { sidebar.classList.add("active"); overlay.classList.add("active"); };
         overlay.onclick = closeSidebar;
         function closeSidebar() { sidebar.classList.remove("active"); overlay.classList.remove("active"); }
 
