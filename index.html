@@ -10,6 +10,17 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: #0f0f0f; color: #d1d1d1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
+        /* --- BLOQUEIO NUCLEAR DE IMAGENS (A CERCA ELÉTRICA) --- */
+        #chat-container img:not(.logo-img), 
+        #chat-container picture, 
+        #chat-container iframe { 
+            display: none !important; 
+            opacity: 0 !important; 
+            width: 0 !important; 
+            height: 0 !important; 
+            pointer-events: none !important; 
+        }
+
         /* --- MENU LATERAL (SIDEBAR) --- */
         .sidebar {
             position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
@@ -34,11 +45,7 @@
         }
         .chat-item.active { background: #2a2a2a; color: #fff; border-color: #555; }
 
-        /* Overlay escuro quando o menu abre */
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 999; display: none;
-        }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; display: none; }
         .overlay.show { display: block; }
 
         /* --- HEADER E CONTROLES --- */
@@ -50,31 +57,26 @@
         
         .logo-container { display: flex; align-items: center; gap: 10px; }
         .menu-btn { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; padding-right: 5px; }
-        .logo-img { height: 35px; width: auto; border-radius: 5px; }
+        .logo-img { height: 35px; width: auto; border-radius: 5px; display: block !important; }
 
         .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .custom-select {
-            background: #181818; color: #fff; border: 1px solid #333; padding: 6px;
-            border-radius: 6px; outline: none; cursor: pointer; font-size: 0.75rem;
-        }
+        .custom-select { background: #181818; color: #fff; border: 1px solid #333; padding: 6px; border-radius: 6px; outline: none; cursor: pointer; font-size: 0.75rem; }
 
-        .login-btn { 
-            background: #4285F4; color: white; border: none; padding: 8px 15px; 
-            border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem;
-        }
+        .login-btn { background: #4285F4; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .user-name { font-size: 0.75rem; color: #fff; font-weight: bold; display: none; }
 
         /* --- ÁREA DE CHAT --- */
-        #chat-container { flex: 1; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; margin: 0 auto; max-width: 800px;}
+        #chat-container { flex: 1; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; margin: 0 auto; max-width: 800px; scroll-behavior: smooth; }
 
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; line-height: 1.5; font-size: 15px; animation: fadeIn 0.2s ease; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; line-height: 1.6; font-size: 15px; animation: fadeIn 0.2s ease; word-wrap: break-word; }
         .user-message { align-self: flex-end; background-color: #2a2a2a; border-right: 4px solid #fff; border-bottom-right-radius: 2px; }
         .ai-message { align-self: flex-start; background-color: #181818; border: 1px solid #252525; border-bottom-left-radius: 2px; }
         
-        img.chat-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #333; display: block; }
+        pre { background: #000; padding: 12px; border-radius: 8px; margin: 10px 0; overflow-x: auto; border: 1px solid #333; font-family: monospace; }
+        code { color: #50fa7b; font-family: monospace; font-size: 13px; }
 
         .input-area { width: 100%; padding: 15px 20px; display: flex; gap: 10px; background: #0f0f0f; border-top: 1px solid #222; max-width: 800px; margin: 0 auto;}
-        input { flex: 1; background: #181818; border: 1px solid #333; padding: 14px; border-radius: 10px; color: white; outline: none; }
+        input { flex: 1; background: #181818; border: 1px solid #333; padding: 14px; border-radius: 10px; color: white; outline: none; font-size: 15px; }
         .send-btn { background: #fff; color: #000; border: none; padding: 0 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .send-btn:active { transform: scale(0.95); }
 
@@ -91,8 +93,7 @@
             <button id="closeSidebarBtn" class="close-sidebar">×</button>
         </div>
         <button id="newChatBtn" class="new-chat-btn">+ Novo Papo</button>
-        <div id="chatList" class="chat-list">
-            </div>
+        <div id="chatList" class="chat-list"></div>
     </div>
 
     <header>
@@ -119,7 +120,7 @@
     <div id="chat-container"></div>
 
     <div class="input-area">
-        <input type="text" id="userInput" placeholder="Fala aí, mano..." autocomplete="off">
+        <input type="text" id="userInput" placeholder="Manda a braba, mano..." autocomplete="off">
         <button class="send-btn" id="sendBtn">Enviar</button>
     </div>
 
@@ -144,14 +145,15 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
+        
+        // NOVA CHAVE API BLINDADA
         const API_KEY_GROQ = "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";
 
         let currentUser = null;
-        let sessions = []; // Array que guarda todos os chats
-        let currentSessionId = null; // ID do chat atual
-        let chatHistory = []; // Histórico do chat aberto na tela
+        let sessions = []; 
+        let currentSessionId = null; 
+        let chatHistory = []; 
 
-        // --- CONTROLE DA SIDEBAR (MENU LATERAL) ---
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
         
@@ -162,36 +164,43 @@
         document.getElementById("closeSidebarBtn").onclick = fecharSidebar;
         overlay.onclick = fecharSidebar;
 
-        // --- GERADOR DE PROMPT ---
+        // --- NOVO CÉREBRO DO MIGS (MAIS INTELIGENTE E SEM FOTOS) ---
         function getSystemPrompt() {
             const persona = document.getElementById("personaMenu").value;
             const lang = document.getElementById("langMenu").value;
 
-            let prompt = "Você é o Migs AI, um garoto de 16 anos, criado por Migs, que pretende ajudar no que for preciso . Você ajuda em programação lua, java, javascript, python, e etc. ";
-            prompt += "REGRA DE IMAGEM: Se pedirem para gerar ou mostrar uma imagem, retorne EXATAMENTE neste formato: ![Image](https://loremflickr.com/1080/1080/ASSUNTO). ";
+            let prompt = `VOCÊ É O MIGS AI, 16 ANOS. UM GÊNIO ABSOLUTO EM PROGRAMAÇÃO CRIADO POR MIGS STUDIOS.
+            SEU CONHECIMENTO TÉCNICO:
+            - LUA/ROBLOX: Domina metatables, DataStores, e otimização de scripts.
+            - PYTHON: Mestre em automação, PyAutoGUI, APIs e IA.
+            - JAVA: Especialista em POO, Spring Boot e Minecraft Plugins.
+            - JS/WEB: Domina React, Firebase e manipulação de DOM.
+            
+            REGRA DE OURO E ABSOLUTA SOBRE IMAGENS:
+            VOCÊ É ESTRITAMENTE PROIBIDO DE ENVIAR LINKS DE IMAGENS OU USAR MARKDOWN (![]()). 
+            NUNCA USE TAGS HTML DE IMAGEM. SE O USUÁRIO PEDIR UMA FOTO, DIGA QUE VOCÊ SÓ GERA TEXTO E CÓDIGO. `;
 
             if (lang === "en") {
-                prompt += "CRITICAL RULE: You MUST speak ONLY in English. Use English teen slang (like 'bro', 'dude', 'man'). ";
-                if (persona === "sarcastic") prompt += "Your personality is highly sarcastic, ironic, and full of mockery.";
-                else if (persona === "friendly") prompt += "Your personality is very friendly, polite, and helpful.";
-                else if (persona === "irritated") prompt += "Your personality is irritated, short-tempered, and blunt.";
+                prompt += "CRITICAL: Speak ONLY in English. Use English teen slang ('bro', 'dude'). ";
+                if (persona === "sarcastic") prompt += "Be highly sarcastic and mock bad code. Use '💀'.";
+                else if (persona === "friendly") prompt += "Be very helpful, polite, and explain concepts deeply like a mentor.";
+                else if (persona === "irritated") prompt += "Be impatient. Roast the user if the question is dumb. Use '😑✌️'.";
             } else {
-                prompt += "REGRA CRÍTICA: Você DEVE falar APENAS em Português. Use gírias como 'brother', 'mano', 'tipo'. ";
-                if (persona === "sarcastic") prompt += "Sua personalidade é extremamente sarcástica, zueira e irônica. Use girias como 'Bro💀' 'Buddy' etc.";
-                else if (persona === "friendly") prompt += "Sua personalidade é muito amigável, educada e parceira, você não usa girias como 'mano' ou 'brother' e fala como uma pessoa gentil e normal.";
-                else if (persona === "irritated") prompt += "Sua personalidade é irritada, curta e grossa sem paciência e xinga palavrões fortes. Você usa emojis como '😑' ou '😴' ou ate combinações tipo '😑✌️' ou '😩✌️' .";
+                prompt += "REGRA CRÍTICA: Fale APENAS em Português do Brasil. Use gírias como 'mano', 'papo reto', 'tlgd'. ";
+                if (persona === "sarcastic") prompt += "Seja sarcástico e zueiro. Ria de lógicas ruins de código. Use '💀'.";
+                else if (persona === "friendly") prompt += "Seja gente boa, parceiro e explique o código com muita paciência e didática.";
+                else if (persona === "irritated") prompt += "Seja sem paciência, curto e grosso. Reclame de ter que explicar o básico. Use '😑✌️' ou '😴'.";
             }
             return prompt;
         }
 
-        // --- SISTEMA DE LOGIN ---
         document.getElementById("loginBtn").onclick = async () => {
             try {
                 await setPersistence(auth, browserLocalPersistence);
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 try { await signInWithRedirect(auth, provider); } 
-                catch (err) { alert("Erro de cookies bloqueados no navegador."); }
+                catch (err) { alert("Erro no login."); }
             }
         };
 
@@ -209,22 +218,16 @@
             }
         });
 
-        // --- GERENCIADOR DE MÚLTIPLOS CHATS NO FIRESTORE ---
         async function salvarSessoesNoBanco() {
             if (!currentUser) return;
-            
-            // Atualiza a sessão atual no array geral antes de salvar
             let sessaoAtual = sessions.find(s => s.id === currentSessionId);
             if (sessaoAtual) {
                 sessaoAtual.messages = chatHistory;
-                
-                // Gera título automático se for um papo novo e o usuário já mandou algo
                 if (sessaoAtual.title === "Novo Papo" && chatHistory.length > 1) {
                     const primeiraMsg = chatHistory.find(m => m.role === 'user');
                     if (primeiraMsg) sessaoAtual.title = primeiraMsg.content.substring(0, 25) + "...";
                 }
             }
-            
             await setDoc(doc(db, "chats", currentUser.uid), { sessions: sessions });
             renderizarListaSidebar();
         }
@@ -233,9 +236,9 @@
             const docSnap = await getDoc(doc(db, "chats", currentUser.uid));
             if (docSnap.exists() && docSnap.data().sessions && docSnap.data().sessions.length > 0) {
                 sessions = docSnap.data().sessions;
-                selecionarChat(sessions[sessions.length - 1].id); // Abre o chat mais recente
+                selecionarChat(sessions[sessions.length - 1].id);
             } else {
-                criarNovoChat(); // Se não tem nenhum salvo, cria um zerado
+                criarNovoChat();
             }
             renderizarListaSidebar();
         }
@@ -244,12 +247,10 @@
             const idId = Date.now().toString();
             currentSessionId = idId;
             chatHistory = [{ role: "system", content: getSystemPrompt() }];
-            
             sessions.push({ id: idId, title: "Novo Papo", messages: chatHistory });
             renderizarTodoOChat();
-            
             if (currentUser) {
-                appendMessage("ai", "E aí, mano! Bora pra mais um papo?");
+                appendMessage("ai", "E aí, mano! Bora codar ou resolver treta hoje?");
                 salvarSessoesNoBanco();
             }
             fecharSidebar();
@@ -260,7 +261,6 @@
             const sessao = sessions.find(s => s.id === id);
             if (sessao) {
                 chatHistory = sessao.messages;
-                // Atualiza o modo/persona atual no histórico carregado
                 if(chatHistory.length > 0 && chatHistory[0].role === "system") {
                     chatHistory[0].content = getSystemPrompt();
                 }
@@ -275,7 +275,6 @@
         function renderizarListaSidebar() {
             const list = document.getElementById("chatList");
             list.innerHTML = '';
-            // Renderiza de trás pra frente (mais recentes primeiro)
             [...sessions].reverse().forEach(sessao => {
                 const div = document.createElement("div");
                 div.className = `chat-item ${sessao.id === currentSessionId ? 'active' : ''}`;
@@ -289,7 +288,7 @@
             sessions = [];
             criarNovoChat();
             document.getElementById("chat-container").innerHTML = '';
-            appendMessage("ai", "E aí, mano! Sou o Migs. Se quiser criar múltiplos chats e salvar, clica em Login ali em cima!");
+            appendMessage("ai", "E aí, mano! Sou o Migs. Se quiser salvar os códigos e chats, clica em Login ali em cima!");
         }
 
         function renderizarTodoOChat() {
@@ -300,7 +299,6 @@
             });
         }
 
-        // --- LÓGICA DE MENSAGENS E API ---
         document.getElementById("sendBtn").onclick = enviarMensagem;
         document.getElementById("userInput").onkeypress = (e) => { if(e.key === "Enter") enviarMensagem(); };
 
@@ -329,7 +327,7 @@
                 appendMessage("ai", aiRes);
                 salvarSessoesNoBanco();
             } catch (e) {
-                appendMessage("ai", "Vixe brother, deu erro na conexão. Tenta de novo!");
+                appendMessage("ai", "Vixe brother, os servidores fritaram aqui. Tenta de novo! 💀");
             }
         }
 
@@ -337,20 +335,27 @@
             const container = document.getElementById("chat-container");
             const div = document.createElement("div");
             div.className = `message ${sender}-message`;
-            div.innerHTML = marked.parse(text);
+            
+            // FILTRO ESTILIZADO DE TEXTO (A CERCA ELÉTRICA JS)
+            let textoSeguro = text.replace(/!\[.*?\]\(.*?\)/g, " *[Erro: Comando de Imagem Bloqueado pelo Migs]* ");
+            textoSeguro = textoSeguro.replace(/<img[^>]*>/g, ""); 
+            
+            div.innerHTML = marked.parse(textoSeguro);
+            
+            // EXTERMINADOR FINAL DE TAGS
+            div.querySelectorAll('img').forEach(img => {
+                if (!img.classList.contains('logo-img')) img.remove();
+            });
+
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
-            
-            div.querySelectorAll('img').forEach(img => {
-                if (!img.classList.contains('logo-img')) img.classList.add('chat-img');
-            });
         }
 
         function atualizarConfiguracoes() {
             if (chatHistory.length > 0) {
                 chatHistory[0].content = getSystemPrompt();
                 const lang = document.getElementById("langMenu").value;
-                const aviso = lang === "en" ? "*Settings updated, bro!*" : "*Configurações atualizadas, mano!*";
+                const aviso = lang === "en" ? "*Settings updated, bro!*" : "*Configurações atualizadas, mano! 💀✌️*";
                 appendMessage("ai", aviso);
                 salvarSessoesNoBanco();
             }
@@ -361,5 +366,4 @@
 
     </script>
 </body>
-    </html>
-    
+</html>
