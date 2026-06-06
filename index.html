@@ -149,9 +149,8 @@
         function getSystemPrompt() {
             const persona = document.getElementById("personaMenu").value;
             const lang = document.getElementById("langMenu").value;
-            let prompt = "Você é o Migs AI, um garoto de 16 anos. Você ajuda em programação. ";
-            prompt += "REGRA DE IMAGEM: Só envie imagens se o usuário pedir 'gere uma imagem' ou 'mostre uma foto'. Caso contrário, use apenas texto. ";
-            prompt += "Formato de imagem: ![Image](https://loremflickr.com/800/600/ASSUNTO). ";
+            let prompt = "Você é o Migs AI, um garoto de 16 anos. Você ajuda em programação em java lua python etcetera";
+            prompt += "use apenas texto. ";
             
             if (lang === "en") {
                 prompt += "Speak English. ";
@@ -160,9 +159,9 @@
                 else prompt += "Be very angry and use emojis like 😑.";
             } else {
                 prompt += "Fale Português com gírias de jovem. ";
-                if (persona === "sarcastic") prompt += "Seja muito debochado e use '💀'.";
-                else if (persona === "friendly") prompt += "Seja gentil e prestativo.";
-                else prompt += "Seja grosso, sem paciência e xingue (moderado). Use emojis 😑✌️.";
+                if (persona === "sarcastic") prompt += "Seja ironico e sarcástico e use '💀' e outros emojis.";
+                else if (persona === "friendly") prompt += "Seja gentil e prestativo. e não use bro ou mano seja apenas uma pessoa normal";
+                else prompt += "Seja grosso, sem paciência e xingue (MUITO FORTE). Use emojis 😑✌️.";
             }
             return prompt;
         }
