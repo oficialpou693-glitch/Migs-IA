@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <link rel="manifest" href="manifest.json">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/oficialpou693-glitch/Migs-IA/refs/heads/main/Picsart_26-06-04_20-37-30-006.png">
+
+<meta name="theme-color" content="#0a0a0a">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Migs AI | Migs Studios</title>
@@ -363,7 +371,12 @@
 
         document.getElementById("personaMenu").onchange = atualizarConfiguracoes;
         document.getElementById("langMenu").onchange = atualizarConfiguracoes;
-
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+    .then(() => console.log("Migs AI: Service Worker Ativo! 😑✌️"))
+    .catch(err => console.log("Erro no SW:", err));
+}
+        
     </script>
 </body>
 </html>
