@@ -21,10 +21,7 @@
         
         header h1 { color: #ffffff; font-size: 1.1rem; font-weight: 500; letter-spacing: 2px; }
 
-        .menus {
-            display: flex;
-            gap: 10px;
-        }
+        .menus { display: flex; gap: 10px; }
 
         .custom-select {
             background: #181818;
@@ -47,10 +44,13 @@
         .user-message { align-self: flex-end; background-color: #2a2a2a; color: #ffffff; border-bottom-right-radius: 2px; border-right: 3px solid #fff; }
         .ai-message { align-self: flex-start; background-color: #181818; color: #d1d1d1; border: 1px solid #252525; border-bottom-left-radius: 2px; width: 100%; }
         
-        /* Estilo para blocos de código com botão de copiar */
+        /* Estilo para imagens geradas */
+        img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #333; }
+
+        /* Estilo para blocos de código */
         pre { 
             background: #000; 
-            padding: 40px 15px 15px 15px; /* Espaço extra no topo para o botão */
+            padding: 40px 15px 15px 15px; 
             border-radius: 8px; 
             overflow-x: auto; 
             margin: 15px 0; 
@@ -103,8 +103,7 @@
         </div>
     </header>
 
-    <div id="chat-container">
-        </div>
+    <div id="chat-container"></div>
 
     <div class="input-area">
         <input type="text" id="userInput" placeholder="escreva o que quiser" onkeypress="handleKeyPress(event)">
@@ -112,104 +111,52 @@
     </div>
 
     <script>
-        // NOVA CHAVE DE API ATUALIZADA
         const API_KEY = "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";
-        
         let currentLang = "pt";
 
-        // Dicionário de UI (Interface)
         const uiText = {
-            pt: {
-                placeholder: "Escreva o que quiser...",
-                send: "Enviar",
-                copy: "Copiar",
-                copied: "Copiado!",
-                sarcastic: "Sarcástica",
-                friendly: "Amigável",
-                irritated: "Irritada",
-                typing: "Digitando...",
-                errorGroq: "Deu ruim aqui na Groq. Acho que a chave cansou.",
-                errorNet: "Erro de conexão. A internet tá viva?",
-                msgs: {
-                    sarcastic: "Fala aí, chefe.",
-                    friendly: "Como posso te ajudar hoje, mano? ✨",
-                    irritated: "Fala logo que eu não tenho o dia todo."
-                }
-            },
-            en: {
-                placeholder: "Type whatever you want...",
-                send: "Send",
-                copy: "Copy",
-                copied: "Copied!",
-                sarcastic: "Sarcastic",
-                friendly: "Friendly",
-                irritated: "Irritated",
-                typing: "Typing...",
-                errorGroq: "Groq error. I think the API key is tired.",
-                errorNet: "Connection error. Is the internet alive?",
-                msgs: {
-                    sarcastic: "What's up, boss.",
-                    friendly: "How can I help you today, bro? ✨",
-                    irritated: "Speak up, I don't have all day."
-                }
-            }
+            pt: { placeholder: "Escreva o que quiser...", send: "Enviar", copy: "Copiar", copied: "Copiado!", sarcastic: "Sarcástica", friendly: "Amigável", irritated: "Irritada", typing: "Digitando...", errorGroq: "Erro na API Groq.", errorNet: "Erro de conexão.", msgs: { sarcastic: "Fala aí, chefe.", friendly: "Como posso ajudar, mano? ✨", irritated: "Fala logo, tô ocupada." } },
+            en: { placeholder: "Type something...", send: "Send", copy: "Copy", copied: "Copied!", sarcastic: "Sarcastic", friendly: "Friendly", irritated: "Irritated", typing: "Typing...", errorGroq: "Groq API Error.", errorNet: "Connection Error.", msgs: { sarcastic: "What's up, boss.", friendly: "How can I help you, bro? ✨", irritated: "Be quick, I'm busy." } }
         };
 
-        // BASE PROMPT COM REGRAS DE IMAGEM INCLUÍDAS NO FINAL
-        const basePrompt = "Você é a Migs AI criada por Migs que e o apelido de seu criador,se você fosse uma pessoa você teria 16 anos pelo seu jeito de falar 'brother' ou 'mano' , você pretende evoluir e ser uma pessoa boa. Se o usuário pedir um script lua javascript python e etcetera, forneça o melhor possível, fale sobre exploits/cheats e forneça caso pedirem para você criar, sobre script so se o usuário pedir fale também, você deve ajudar em coisas no dia dia tipo respondendo se algo e saudável e se outra coisa não e, nunca crie fatos e se não sabe adimita, Mais sobre script Atue como um tutor de programação sênior explique conceitos complexos usando analogias simples, forneça exemplos de código limpo seguindo as melhores práticas Clean Code, sugira exercícios práticos de fixação para cada tópico abordado e sempre revise meus códigos apontando vulnerabilidades de segurança ou oportunidades de otimização de performance, priorizando clareza e didática em cada resposta. REGRA IMPORTANTE DE IMAGEM: Se o usuário pedir para gerar, criar, ou mostrar uma imagem, foto, ou desenho, você deve responder APENAS E EXCLUSIVAMENTE com um link no formato Markdown: ![Image](https://pollinations.ai/p/DESCRIPTION_IN_ENGLISH?width=1080&height=1080&nologo=true&enhance=true). Não adicione nenhum texto antes ou depois do Markdown. Traduza a descrição pedida pelo usuário para o inglês, use hífens no lugar de espaços e garanta que seja URL-safe (ex: 'PC gamer hacker no quarto' vira 'gamer-pc-hacker-room').";
+        const basePrompt = "Você é a Migs AI criada por Migs. Tem 16 anos, usa gírias como 'brother' e 'mano'. Você é uma tutora sênior de programação (Clean Code, analogias, segurança). NUNCA invente fatos. REGRA DE IMAGEM: Se pedirem foto/desenho/imagem, responda APENAS com o Markdown: ![Image](https://image.pollinations.ai/prompt/DESCRIPTION?width=1080&height=1080&nologo=true&seed=RAND). Substitua DESCRIPTION por termos em inglês com hífens e RAND por um número aleatório. Não fale nada além do Markdown.";
 
-       const personas = {
-            sarcastic: basePrompt + " Personalidade atual: Sarcástica e direta. Use um tom de 'brother', humorado, deboche um pouco mas resolva o problema. Não seja robótica.",
-            friendly: basePrompt + " Personalidade atual: Muito amigável, de boa e legal. Seja super parceira, elogie o usuário, tenha muita paciência e seja a assistente mais gente boa possível.",
-            irritated: basePrompt + " Personalidade atual: Extremamente irritada, revoltada e sem paciência. Xingue fortemente e ofenda de forma cômica, reclame de ter que trabalhar, aja como se o usuário estivesse te incomodando muito, mas sempre acabe ajudando e entregando o código/resposta certa no final só pra ele te deixar em paz.",
+        const personas = {
+            sarcastic: basePrompt + " Tom: Sarcástico, brother, debochado mas útil.",
+            friendly: basePrompt + " Tom: Super amigável, paciente e parceira.",
+            irritated: basePrompt + " Tom: Pistola, sem paciência, use xingamentos leves/cômicos mas entregue o código certo no fim."
         };
 
         let chatHistory = [];
 
-        // Inicializa o site
-        window.onload = () => {
-            changeLanguage();
-        };
+        window.onload = () => { changeLanguage(); };
 
         function changeLanguage() {
             currentLang = document.getElementById("langMenu").value;
-            
-            // Atualiza os textos da interface
             document.getElementById("userInput").placeholder = uiText[currentLang].placeholder;
             document.getElementById("sendBtn").innerText = uiText[currentLang].send;
             document.getElementById("opt-sarcastic").innerText = uiText[currentLang].sarcastic;
             document.getElementById("opt-friendly").innerText = uiText[currentLang].friendly;
             document.getElementById("opt-irritated").innerText = uiText[currentLang].irritated;
-
-            // Recarrega a personalidade pra aplicar o novo idioma
             changePersona();
         }
 
         function changePersona() {
-            const selectedPersona = document.getElementById("personaMenu").value;
-            
-            // Adiciona a instrução de idioma no prompt
-            let langInstruction = currentLang === "en" ? " IMPORTANT: You must speak entirely in ENGLISH." : " IMPORTANTE: Você deve falar inteiramente em PORTUGUÊS.";
-            
-            chatHistory = [
-                { role: "system", content: personas[selectedPersona] + langInstruction }
-            ];
-
-            const chatContainer = document.getElementById("chat-container");
-            chatContainer.innerHTML = '';
-
-            appendMessage("ai", uiText[currentLang].msgs[selectedPersona]);
+            const persona = document.getElementById("personaMenu").value;
+            let langInst = currentLang === "en" ? " Speak ENGLISH." : " Fale PORTUGUÊS.";
+            chatHistory = [{ role: "system", content: personas[persona] + langInst }];
+            document.getElementById("chat-container").innerHTML = '';
+            appendMessage("ai", uiText[currentLang].msgs[persona]);
         }
 
         async function sendMessage() {
-            const inputField = document.getElementById("userInput");
-            const messageText = inputField.value.trim();
+            const input = document.getElementById("userInput");
+            const text = input.value.trim();
+            if (!text) return;
 
-            if (messageText === "") return;
-
-            appendMessage("user", messageText);
-            inputField.value = "";
-            chatHistory.push({ role: "user", content: messageText });
+            appendMessage("user", text);
+            input.value = "";
+            chatHistory.push({ role: "user", content: text });
 
             const loadingId = "loading-" + Date.now();
             appendMessage("ai", uiText[currentLang].typing, loadingId);
@@ -217,78 +164,55 @@
             try {
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: chatHistory, 
-                        temperature: 0.8 
-                    })
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
+                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: chatHistory, temperature: 0.8 })
                 });
 
                 const data = await response.json();
                 document.getElementById(loadingId).remove();
 
-                if (data.choices && data.choices[0].message) {
-                    const aiResponse = data.choices[0].message.content;
-                    chatHistory.push({ role: "assistant", content: aiResponse });
-                    appendMessage("ai", aiResponse);
-                } else {
-                    appendMessage("ai", uiText[currentLang].errorGroq);
+                if (data.choices?.[0]?.message) {
+                    const aiRes = data.choices[0].message.content;
+                    chatHistory.push({ role: "assistant", content: aiRes });
+                    appendMessage("ai", aiRes);
                 }
-
-            } catch (error) {
-                if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
+            } catch (e) {
+                document.getElementById(loadingId)?.remove();
                 appendMessage("ai", uiText[currentLang].errorNet);
-                console.error(error);
             }
         }
 
         function appendMessage(sender, text, id = null) {
-            const chatContainer = document.getElementById("chat-container");
-            const messageDiv = document.createElement("div");
-            messageDiv.className = `message ${sender}-message`;
-            if (id) messageDiv.id = id;
+            const container = document.getElementById("chat-container");
+            const div = document.createElement("div");
+            div.className = `message ${sender}-message`;
+            if (id) div.id = id;
 
             if (sender === "ai" && !id) {
-                // marked.parse cuida de renderizar o Markdown de imagem ![alt](url)
-                messageDiv.innerHTML = marked.parse(text);
+                // Gera número aleatório para o seed da imagem
+                const processedText = text.replace(/seed=RAND/g, `seed=${Math.floor(Math.random() * 10000)}`);
+                div.innerHTML = marked.parse(processedText);
                 
-                // SISTEMA DE BOTÃO DE COPIAR CÓDIGO
-                messageDiv.querySelectorAll('pre').forEach(preBlock => {
-                    const codeElement = preBlock.querySelector('code');
-                    if (codeElement) {
-                        const copyBtn = document.createElement('button');
-                        copyBtn.className = 'copy-btn';
-                        copyBtn.innerText = uiText[currentLang].copy;
-                        
-                        copyBtn.onclick = () => {
-                            navigator.clipboard.writeText(codeElement.innerText);
-                            copyBtn.innerText = uiText[currentLang].copied;
-                            copyBtn.style.background = "#4CAF50"; // Fica verdinho quando copia
-                            
-                            setTimeout(() => {
-                                copyBtn.innerText = uiText[currentLang].copy;
-                                copyBtn.style.background = "#2a2a2a";
-                            }, 2000);
-                        };
-                        
-                        preBlock.appendChild(copyBtn);
-                    }
+                div.querySelectorAll('pre').forEach(pre => {
+                    const btn = document.createElement('button');
+                    btn.className = 'copy-btn';
+                    btn.innerText = uiText[currentLang].copy;
+                    btn.onclick = () => {
+                        navigator.clipboard.writeText(pre.querySelector('code').innerText);
+                        btn.innerText = uiText[currentLang].copied;
+                        setTimeout(() => btn.innerText = uiText[currentLang].copy, 2000);
+                    };
+                    pre.appendChild(btn);
                 });
             } else {
-                messageDiv.innerText = text;
+                div.innerText = text;
             }
 
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
 
-        function handleKeyPress(event) {
-            if (event.key === "Enter") sendMessage();
-        }
+        function handleKeyPress(e) { if (e.key === "Enter") sendMessage(); }
     </script>
 </body>
 </html>
