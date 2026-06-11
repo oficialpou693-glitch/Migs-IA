@@ -44,8 +44,8 @@
         .logo-container { display: flex; align-items: center; gap: 10px; }
         .logo-img { height: 35px; width: auto; border-radius: 5px; }
         
-        .controls { display: flex; gap: 8px; align-items: center; }
-        .custom-select { background: #181818; color: #fff; border: 1px solid #333; padding: 6px; border-radius: 6px; outline: none; font-size: 0.75rem; cursor: pointer; }
+        .controls { display: flex; gap: 12px; align-items: center; }
+        .chat-badge { font-size: 0.75rem; background: #222; color: #eee; padding: 5px 10px; border-radius: 6px; border: 1px solid #333; font-weight: bold; }
 
         /* Chat */
         #chat-container { flex: 1; width: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; margin: 0 auto; max-width: 800px; }
@@ -69,6 +69,20 @@
         
         .login-btn { background: #4285F4; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 0.75rem; transition: 0.2s; }
         .login-btn:hover { background: #3367D6; }
+
+        /* Custom Modal Layout */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+        .modal-content { background: #141414; border: 1px solid #252525; padding: 25px; border-radius: 16px; width: 90%; max-width: 440px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        .modal-title { font-size: 1.25rem; font-weight: bold; color: #fff; text-align: center; }
+        .modal-section-title { font-size: 0.8rem; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: bold; }
+        .opt-group { display: flex; gap: 10px; }
+        .custom-opt { flex: 1; background: #1c1c1c; border: 1px solid #333; padding: 12px; border-radius: 10px; color: #aaa; text-align: center; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
+        .custom-opt:hover { border-color: #555; color: #fff; }
+        .custom-opt.selected { background: #fff; color: #000; border-color: #fff; }
+        .persona-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .start-chat-btn { background: #fff; color: #000; border: none; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; text-align: center; margin-top: 10px; transition: 0.2s; }
+        .start-chat-btn:hover { background: #ddd; }
     </style>
 </head>
 <body>
@@ -83,6 +97,32 @@
         <div id="chatList" class="chat-list"></div>
     </div>
 
+    <div id="setupModal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modalTitle" class="modal-title">Configurar Novo Papo</div>
+            
+            <div>
+                <div id="modalLangTitle" class="modal-section-title">Escolha o Idioma</div>
+                <div class="opt-group">
+                    <div class="custom-opt lang-opt selected" data-val="pt">🇧🇷 PT</div>
+                    <div class="custom-opt lang-opt" data-val="en">🇺🇸 EN</div>
+                </div>
+            </div>
+
+            <div>
+                <div id="modalPersonaTitle" class="modal-section-title">Escolha a Personalidade</div>
+                <div class="persona-grid">
+                    <div id="modalOptNerd" class="custom-opt persona-opt selected" data-val="nerd">Nerd 🤓</div>
+                    <div id="modalOptSarcastic" class="custom-opt persona-opt" data-val="sarcastic">Sarcástico</div>
+                    <div id="modalOptFriendly" class="custom-opt persona-opt" data-val="friendly">Amigável</div>
+                    <div id="modalOptIrritated" class="custom-opt persona-opt" data-val="irritated">Irritado</div>
+                </div>
+            </div>
+
+            <button id="startChatBtn" class="start-chat-btn">Iniciar Conversa</button>
+        </div>
+    </div>
+
     <header>
         <div class="logo-container">
             <button id="menuBtn" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">☰</button>
@@ -91,16 +131,7 @@
         </div>
         
         <div class="controls">
-            <select id="langMenu" class="custom-select">
-                <option value="pt">🇧🇷 PT</option>
-                <option value="en">🇺🇸 EN</option>
-            </select>
-            <select id="personaMenu" class="custom-select">
-                <option id="opt-nerd" value="nerd">Nerd 🤓</option>
-                <option id="opt-sarcastic" value="sarcastic">Sarcástico</option>
-                <option id="opt-friendly" value="friendly">Amigável</option>
-                <option id="opt-irritated" value="irritated">Irritado</option>
-            </select>
+            <span id="chatBadge" class="chat-badge" style="display:none;"></span>
             <button id="loginBtn" class="login-btn">Login</button>
             <span id="userName" style="font-size:0.7rem; color:#fff; font-weight:bold; display:none;"></span>
         </div>
@@ -130,7 +161,10 @@
         let currentSessionId = null; 
         let chatHistory = []; 
 
-        // Sistema de Traduções
+        let tempLang = "pt";
+        let tempPersona = "nerd";
+
+        // Sistema de Traduções Completo
         const uiTranslations = {
             pt: {
                 sidebarTitle: "Meus Chats",
@@ -140,10 +174,14 @@
                 loginBtn: "Login",
                 renamePrompt: "Novo nome do chat:",
                 optNerd: "Nerd 🤓",
-                optSarcastic: "Sarcástico",
-                optFriendly: "Amigável",
-                optIrritated: "Irritado",
-                defaultTitle: "Novo Papo"
+                optSarcastic: "Sarcástico 💀",
+                optFriendly: "Amigável ✨",
+                optIrritated: "Irritado 😑",
+                defaultTitle: "Novo Papo",
+                modalTitle: "Configurar Novo Papo",
+                modalLang: "Escolha o Idioma",
+                modalPersona: "Escolha a Personalidade",
+                modalStart: "Iniciar Conversa"
             },
             en: {
                 sidebarTitle: "My Chats",
@@ -153,15 +191,18 @@
                 loginBtn: "Login",
                 renamePrompt: "New chat name:",
                 optNerd: "Nerd 🤓",
-                optSarcastic: "Sarcastic",
-                optFriendly: "Friendly",
-                optIrritated: "Irritated",
-                defaultTitle: "New Chat"
+                optSarcastic: "Sarcastic 💀",
+                optFriendly: "Friendly ✨",
+                optIrritated: "Irritated 😑",
+                defaultTitle: "New Chat",
+                modalTitle: "Setup New Chat",
+                modalLang: "Choose Language",
+                modalPersona: "Choose Persona",
+                modalStart: "Start Chat"
             }
         };
 
-        function translateUI() {
-            const lang = document.getElementById("langMenu").value;
+        function translateUI(lang) {
             const t = uiTranslations[lang];
             
             document.getElementById("sidebar-title").innerText = t.sidebarTitle;
@@ -171,14 +212,35 @@
             if(document.getElementById("loginBtn").style.display !== "none") {
                 document.getElementById("loginBtn").innerText = t.loginBtn;
             }
-            document.getElementById("opt-nerd").innerText = t.optNerd;
-            document.getElementById("opt-sarcastic").innerText = t.optSarcastic;
-            document.getElementById("opt-friendly").innerText = t.optFriendly;
-            document.getElementById("opt-irritated").innerText = t.optIrritated;
+
+            // Tradução interna do Menu Customizado
+            document.getElementById("modalTitle").innerText = t.modalTitle;
+            document.getElementById("modalLangTitle").innerText = t.modalLang;
+            document.getElementById("modalPersonaTitle").innerText = t.modalPersona;
+            document.getElementById("startChatBtn").innerText = t.modalStart;
+            document.getElementById("modalOptNerd").innerText = t.optNerd;
+            document.getElementById("modalOptSarcastic").innerText = t.optSarcastic;
+            document.getElementById("modalOptFriendly").innerText = t.optFriendly;
+            document.getElementById("modalOptIrritated").innerText = t.optIrritated;
         }
 
-        // Registro de Service Worker
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
+        // Lógica de cliques no Menu customizado
+        document.querySelectorAll(".lang-opt").forEach(el => {
+            el.onclick = () => {
+                document.querySelectorAll(".lang-opt").forEach(opt => opt.classList.remove("selected"));
+                el.classList.add("selected");
+                tempLang = el.getAttribute("data-val");
+                translateUI(tempLang); // Traduz instantaneamente tudo ao clicar
+            };
+        });
+
+        document.querySelectorAll(".persona-opt").forEach(el => {
+            el.onclick = () => {
+                document.querySelectorAll(".persona-opt").forEach(opt => opt.classList.remove("selected"));
+                el.classList.add("selected");
+                tempPersona = el.getAttribute("data-val");
+            };
+        });
 
         // Sidebar
         const menuBtn = document.getElementById("menuBtn");
@@ -188,18 +250,19 @@
         document.getElementById("closeSidebarBtn").onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
         overlay.onclick = () => { sidebar.classList.remove("open"); overlay.classList.remove("show"); };
 
-        // Funções Globais (Cópia, Renomear e Apagar)
         window.copyToClipboard = (btn) => {
             const pre = btn.nextElementSibling;
             navigator.clipboard.writeText(pre.innerText);
-            const lang = document.getElementById("langMenu").value;
+            const currentChat = sessions.find(s => s.id === currentSessionId);
+            const lang = currentChat ? currentChat.lang : "pt";
             btn.innerText = lang === "pt" ? "Copiado!" : "Copied!";
             setTimeout(() => btn.innerText = lang === "pt" ? "Copiar" : "Copy", 2000);
         };
 
         window.renameChat = (id, event) => {
             event.stopPropagation();
-            const lang = document.getElementById("langMenu").value;
+            const currentChat = sessions.find(s => s.id === id);
+            const lang = currentChat ? currentChat.lang : "pt";
             const novoNome = prompt(uiTranslations[lang].renamePrompt);
             if (novoNome) {
                 const s = sessions.find(s => s.id === id);
@@ -210,22 +273,16 @@
         window.deleteChat = (id, event) => {
             event.stopPropagation();
             sessions = sessions.filter(s => s.id !== id);
-            
             if (currentSessionId === id) {
-                if (sessions.length > 0) {
-                    selecionarChat(sessions[sessions.length - 1].id);
-                } else {
-                    criarNovoChat();
-                }
+                if (sessions.length > 0) selecionarChat(sessions[sessions.length - 1].id);
+                else abrirMenuCriacao();
             }
             salvarSessoesNoBanco();
             renderizarListaSidebar();
         };
 
-        // --- LÓGICA DO PROMPT ---
-        function getSystemPrompt() {
-            const persona = document.getElementById("personaMenu").value;
-            const lang = document.getElementById("langMenu").value;
+        // --- LÓGICA DO PROMPT PROS OUTROS MODOS ---
+        function getSystemPrompt(persona, lang) {
             let prompt = "Você é o Migs AI, uma IA super inteligente. PROIBIDO IMAGENS. ";
             
             if (lang === "en") {
@@ -252,7 +309,7 @@
                 document.getElementById("userName").style.display = "block";
                 document.getElementById("userName").innerText = `Salve, ${user.displayName.split(' ')[0]}!`;
                 await carregarTodosChats();
-            } else { criarNovoChat(); }
+            } else { abrirMenuCriacao(); }
         });
 
         async function carregarTodosChats() {
@@ -260,8 +317,8 @@
             if (docSnap.exists()) {
                 sessions = docSnap.data().sessions || [];
                 if (sessions.length > 0) selecionarChat(sessions[sessions.length-1].id);
-                else criarNovoChat();
-            } else { criarNovoChat(); }
+                else abrirMenuCriacao();
+            } else { abrirMenuCriacao(); }
         }
 
         async function salvarSessoesNoBanco() {
@@ -275,23 +332,63 @@
         function selecionarChat(id) {
             currentSessionId = id;
             const s = sessions.find(s => s.id === id);
+            
+            // Garantir retrocompatibilidade com chats antigos salvos
+            if(s && !s.lang) s.lang = "pt";
+            if(s && !s.persona) s.persona = "nerd";
+
             chatHistory = s ? s.messages : [];
+            
+            if (s) {
+                translateUI(s.lang);
+                const badge = document.getElementById("chatBadge");
+                badge.style.display = "block";
+                badge.innerText = `${s.lang.toUpperCase()} | ${uiTranslations[s.lang]['opt' + s.persona.charAt(0).toUpperCase() + s.persona.slice(1)]}`;
+            }
+
             renderizarTodoOChat();
             renderizarListaSidebar();
             sidebar.classList.remove("open");
             overlay.classList.remove("show");
+            document.getElementById("setupModal").classList.remove("show");
         }
 
-        function criarNovoChat() {
-            const lang = document.getElementById("langMenu").value;
+        function abrirMenuCriacao() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+            
+            // Resetar opções padrão do modal visual
+            tempLang = "pt";
+            tempPersona = "nerd";
+            translateUI("pt");
+            
+            document.querySelectorAll(".lang-opt").forEach(opt => opt.classList.remove("selected"));
+            document.querySelectorAll(".persona-opt").forEach(opt => opt.classList.remove("selected"));
+            document.querySelector(".lang-opt[data-val='pt']").classList.add("selected");
+            document.querySelector(".persona-opt[data-val='nerd']").classList.add("selected");
+
+            document.getElementById("setupModal").classList.add("show");
+        }
+
+        document.getElementById("newChatBtn").onclick = abrirMenuCriacao;
+        document.getElementById("startChatBtn").onclick = criarNovoChatConfirmado;
+
+        function criarNovoChatConfirmado() {
             currentSessionId = Date.now().toString();
-            chatHistory = [{ role: "system", content: getSystemPrompt() }];
-            sessions.push({ id: currentSessionId, title: uiTranslations[lang].defaultTitle, messages: chatHistory });
-            renderizarTodoOChat();
-            renderizarListaSidebar();
-        }
+            chatHistory = [{ role: "system", content: getSystemPrompt(tempPersona, tempLang) }];
+            
+            sessions.push({ 
+                id: currentSessionId, 
+                title: uiTranslations[tempLang].defaultTitle, 
+                messages: chatHistory,
+                lang: tempLang,
+                persona: tempPersona
+            });
 
-        document.getElementById("newChatBtn").onclick = criarNovoChat;
+            document.getElementById("setupModal").classList.remove("show");
+            selecionarChat(currentSessionId);
+            salvarSessoesNoBanco();
+        }
 
         function renderizarListaSidebar() {
             const list = document.getElementById("chatList");
@@ -310,7 +407,7 @@
             });
         }
 
-        // Chat & Efeito de Digitação
+        // Chat
         document.getElementById("sendBtn").onclick = enviarMensagem;
         document.getElementById("userInput").onkeypress = (e) => { if(e.key === "Enter") enviarMensagem(); };
 
@@ -318,12 +415,16 @@
             const input = document.getElementById("userInput");
             const text = input.value.trim();
             if (!text) return;
+            
+            const currentChat = sessions.find(s => s.id === currentSessionId);
+            const activeLang = currentChat ? currentChat.lang : "pt";
+            const activePersona = currentChat ? currentChat.persona : "nerd";
+
             appendMessage("user", text);
             input.value = "";
-            chatHistory[0].content = getSystemPrompt();
+            chatHistory[0].content = getSystemPrompt(activePersona, activeLang);
             chatHistory.push({ role: "user", content: text });
             
-            // Bloqueia input enquanto digita
             input.disabled = true;
             document.getElementById("sendBtn").disabled = true;
 
@@ -337,14 +438,12 @@
                 const aiRes = data.choices[0].message.content;
                 chatHistory.push({ role: "assistant", content: aiRes });
                 
-                await appendMessage("ai", aiRes, true); // True ativa o efeito de digitação
+                await appendMessage("ai", aiRes, true); // True ativa o efeito de digitação descendo
                 
-                const lang = document.getElementById("langMenu").value;
-                let s = sessions.find(s => s.id === currentSessionId);
-                if (s && (s.title === "Novo Papo" || s.title === "New Chat")) s.title = text.substring(0, 20);
+                if (currentChat && (currentChat.title === "Novo Papo" || currentChat.title === "New Chat")) currentChat.title = text.substring(0, 20);
                 salvarSessoesNoBanco();
             } catch (e) { 
-                await appendMessage("ai", "Erro na conexão 💀"); 
+                await appendMessage("ai", activeLang === "pt" ? "Erro na conexão 💀" : "Connection Error 💀"); 
             }
 
             input.disabled = false;
@@ -354,9 +453,7 @@
 
         function renderizarTodoOChat() {
             document.getElementById("chat-container").innerHTML = '';
-            chatHistory.forEach(m => { 
-                if(m.role !== "system") appendMessage(m.role === "user" ? "user" : "ai", m.content, false); 
-            });
+            chatHistory.forEach(m => { if(m.role !== "system") appendMessage(m.role === "user" ? "user" : "ai", m.content, false); });
         }
 
         async function appendMessage(sender, text, animate = false) {
@@ -366,7 +463,8 @@
             container.appendChild(div);
             
             let clean = text.replace(/!\[.*?\]\(.*?\)/g, ""); 
-            const lang = document.getElementById("langMenu").value;
+            const currentChat = sessions.find(s => s.id === currentSessionId);
+            const lang = currentChat ? currentChat.lang : "pt";
             const copyText = lang === "pt" ? "Copiar" : "Copy";
 
             const formatHTML = (rawText) => {
@@ -380,15 +478,15 @@
                 let currentText = "";
                 let i = 0;
                 return new Promise(resolve => {
-                    const speed = 10; // Velocidade da digitação (ms)
+                    const speed = 10;
                     const timer = setInterval(() => {
                         currentText += clean.charAt(i);
-                        div.innerHTML = formatHTML(currentText + "▌"); // Cursor piscando
+                        div.innerHTML = formatHTML(currentText + "▌");
                         container.scrollTop = container.scrollHeight;
                         i++;
                         if (i >= clean.length) {
                             clearInterval(timer);
-                            div.innerHTML = formatHTML(clean); // Render final sem cursor
+                            div.innerHTML = formatHTML(clean);
                             resolve();
                         }
                     }, speed);
@@ -401,17 +499,8 @@
 
         document.getElementById("loginBtn").onclick = () => signInWithPopup(auth, provider);
         
-        document.getElementById("personaMenu").onchange = () => { 
-            chatHistory[0].content = getSystemPrompt(); 
-        };
-        
-        document.getElementById("langMenu").onchange = () => { 
-            translateUI();
-            chatHistory[0].content = getSystemPrompt(); 
-        };
-
-        // Forçar tradução inicial
-        translateUI();
+        // Inicialização padrão da tradução
+        translateUI("pt");
     </script>
 </body>
 </html>
