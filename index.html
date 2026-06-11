@@ -352,4 +352,66 @@
             input.focus();
         }
 
-        func
+        function renderizarTodoOChat() {
+            document.getElementById("chat-container").innerHTML = '';
+            chatHistory.forEach(m => { 
+                if(m.role !== "system") appendMessage(m.role === "user" ? "user" : "ai", m.content, false); 
+            });
+        }
+
+        async function appendMessage(sender, text, animate = false) {
+            const container = document.getElementById("chat-container");
+            const div = document.createElement("div");
+            div.className = `message ${sender}-message`;
+            container.appendChild(div);
+            
+            let clean = text.replace(/!\[.*?\]\(.*?\)/g, ""); 
+            const lang = document.getElementById("langMenu").value;
+            const copyText = lang === "pt" ? "Copiar" : "Copy";
+
+            const formatHTML = (rawText) => {
+                let html = marked.parse(rawText);
+                html = html.replace(/<pre><code/g, `<div class="code-container"><button class="copy-btn" onclick="copyToClipboard(this)">${copyText}</button><pre><code`);
+                html = html.replace(/<\/code><\/pre>/g, '</code></pre></div>');
+                return html;
+            };
+
+            if (animate && sender === "ai") {
+                let currentText = "";
+                let i = 0;
+                return new Promise(resolve => {
+                    const speed = 10; // Velocidade da digitação (ms)
+                    const timer = setInterval(() => {
+                        currentText += clean.charAt(i);
+                        div.innerHTML = formatHTML(currentText + "▌"); // Cursor piscando
+                        container.scrollTop = container.scrollHeight;
+                        i++;
+                        if (i >= clean.length) {
+                            clearInterval(timer);
+                            div.innerHTML = formatHTML(clean); // Render final sem cursor
+                            resolve();
+                        }
+                    }, speed);
+                });
+            } else {
+                div.innerHTML = formatHTML(clean);
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        document.getElementById("loginBtn").onclick = () => signInWithPopup(auth, provider);
+        
+        document.getElementById("personaMenu").onchange = () => { 
+            chatHistory[0].content = getSystemPrompt(); 
+        };
+        
+        document.getElementById("langMenu").onchange = () => { 
+            translateUI();
+            chatHistory[0].content = getSystemPrompt(); 
+        };
+
+        // Forçar tradução inicial
+        translateUI();
+    </script>
+</body>
+</html>
