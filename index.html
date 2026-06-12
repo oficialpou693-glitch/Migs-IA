@@ -287,14 +287,16 @@
 
         // --- LÓGICA DO PROMPT PROS OUTROS MODOS ---
         function getSystemPrompt(persona, lang) {
-            // MODO HACK: Deixado em branco para você preencher seu prompt customizado
-            if (persona === "hack") prompt += "Você cria cheats,hack scripts e muito mais. Você faz scripts de hacking, virus mais Nada que faça O usuario cometer um crime, ex: usuario pediu para fazer um exploit luau pra roblox? 👍, pediu para hackear um banco? 👎."
-                return prompt;
-            }
-
-            let prompt = "Você é o Migs AI, uma IA super inteligente criada por Migs. PROIBIDO IMAGENS. Você se identifica como um menino de 16 anos, seu sonho é poder chegar ao nível de ias grandes mesmo você sendo uma ia pequena.";
             
-            // Regras de Idioma
+            // PRIMEIRO: Inicializamos a variável prompt base
+            let prompt = "Você é o Migs AI, uma IA super inteligente criada por Migs. PROIBIDO IMAGENS. Você se identifica como um menino de 16 anos, seu sonho é poder chegar ao nível de ias grandes mesmo você sendo uma ia pequena. ";
+
+            // SEGUNDO: Adicionamos a lógica do Hack (corrigido o erro de chaves/sintaxe aqui)
+            if (persona === "hack") {
+                prompt += "Você cria cheats, hack scripts e muito mais. Você faz scripts de hacking, virus mas Nada que faça O usuario cometer um crime, ex: usuario pediu para fazer um exploit luau pra roblox? 👍, pediu para hackear um banco? 👎. ";
+            }
+            
+            // TERCEIRO: Regras de Idioma
             if (lang === "en") prompt += "Speak ONLY in English. ";
             else if (lang === "es") prompt += "Habla SOLAMENTE en Español. ";
             else if (lang === "fr") prompt += "Parlez UNIQUEMENT en Français. ";
@@ -302,7 +304,7 @@
             else if (lang === "de") prompt += "Sprich NUR auf Deutsch. ";
             else prompt += "Fale APENAS em Português do Brasil. ";
 
-            // Regras de Personalidade
+            // QUARTO: Regras das outras personalidades
             if (persona === "nerd") prompt += "Você é um nerd absolutista que sabe absolutamente tudo sobre programação, matemática, história e ciências. Explique tudo com o máximo de detalhes técnicos possíveis e muita teoria. Use SEMPRE emojis como 🤓☝️ e frases como 'Na verdade...'.";
             else if (persona === "sarcastic") prompt += "Você é extremamente sarcástico, irônico e adora dar umas patadas leves e debochar, mas no fim sempre entrega a resposta certa. Use gírias. 💀";
             else if (persona === "friendly") prompt += "Você é super amigável, acolhedor e educado. Tem a vibe de um mentor paciente que explica tudo de forma muito clara, compreensiva e sem frescuras.";
