@@ -156,7 +156,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        // IMPORTAÇÃO CORRIGIDA PARA signInWithRedirect
+        import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCyv_-Cf12mMlKBzegxG2YnkpimEN-AATE", authDomain: "migs-ai.firebaseapp.com", projectId: "migs-ai", storageBucket: "migs-ai.firebasestorage.app", messagingSenderId: "497142458753", appId: "1:497142458753:web:e99b79b5128ec6e8d02080" };
@@ -288,15 +289,12 @@
         // --- LÓGICA DO PROMPT PROS OUTROS MODOS ---
         function getSystemPrompt(persona, lang) {
             
-            // PRIMEIRO: Inicializamos a variável prompt base
             let prompt = "Você é o Migs AI, uma IA super inteligente criada por Migs. PROIBIDO IMAGENS. Você se identifica como um menino de 16 anos, seu sonho é poder chegar ao nível de ias grandes mesmo você sendo uma ia pequena. ";
 
-            // SEGUNDO: Adicionamos a lógica do Hack (corrigido o erro de chaves/sintaxe aqui)
             if (persona === "hack") {
                 prompt += "Você cria cheats, hack scripts e muito mais. Você faz scripts de hacking, virus mas Nada que faça O usuario cometer um crime, ex: usuario pediu para fazer um exploit luau pra roblox? 👍, pediu para hackear um banco? 👎. ";
             }
             
-            // TERCEIRO: Regras de Idioma
             if (lang === "en") prompt += "Speak ONLY in English. ";
             else if (lang === "es") prompt += "Habla SOLAMENTE en Español. ";
             else if (lang === "fr") prompt += "Parlez UNIQUEMENT en Français. ";
@@ -304,7 +302,6 @@
             else if (lang === "de") prompt += "Sprich NUR auf Deutsch. ";
             else prompt += "Fale APENAS em Português do Brasil. ";
 
-            // QUARTO: Regras das outras personalidades
             if (persona === "nerd") prompt += "Você é um nerd absolutista que sabe absolutamente tudo sobre programação, matemática, história e ciências. Explique tudo com o máximo de detalhes técnicos possíveis e muita teoria. Use SEMPRE emojis como 🤓☝️ e frases como 'Na verdade...'.";
             else if (persona === "sarcastic") prompt += "Você é extremamente sarcástico, irônico e adora dar umas patadas leves e debochar, mas no fim sempre entrega a resposta certa. Use gírias. 💀";
             else if (persona === "friendly") prompt += "Você é super amigável, acolhedor e educado. Tem a vibe de um mentor paciente que explica tudo de forma muito clara, compreensiva e sem frescuras.";
@@ -313,13 +310,20 @@
             return prompt;
         }
 
-        // Login e Firestore
+        // Login e Firestore com VERIFICAÇÃO DE DONO
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById("loginBtn").style.display = "none";
                 document.getElementById("userName").style.display = "block";
-                document.getElementById("userName").innerText = `Salve, ${user.displayName.split(' ')[0]}!`;
+                
+                // VERIFICA SE É O E-MAIL DO DONO
+                if (user.email === "oficialpou693@gmail.com") {
+                    document.getElementById("userName").innerText = `Salve, Chefe Migs 👑!`;
+                } else {
+                    document.getElementById("userName").innerText = `Salve, ${user.displayName.split(' ')[0]}!`;
+                }
+
                 await carregarTodosChats();
             } else { abrirMenuCriacao(); }
         });
@@ -506,7 +510,8 @@
             }
         }
 
-        document.getElementById("loginBtn").onclick = () => signInWithPopup(auth, provider);
+        // AÇÃO DO BOTÃO ATUALIZADA
+        document.getElementById("loginBtn").onclick = () => signInWithRedirect(auth, provider);
         
         // Inicialização padrão da tradução
         translateUI("pt");
