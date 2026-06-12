@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "me.migs.ai",
+        "sha256_cert_fingerprints": ["9E:17:BF:58:39:86:BC:DE:A4:97:BA:CC:ED:41:D0:FF:0D:87:09:E8:06:27:2B:24:42:42:8D:FE:5A:58:67:8C"]
+      }
+    }]
