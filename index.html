@@ -288,11 +288,11 @@
         // --- LÓGICA DO PROMPT PROS OUTROS MODOS ---
         function getSystemPrompt(persona, lang) {
             // MODO HACK: Deixado em branco para você preencher seu prompt customizado
-            if (persona === "hack") {
-                return ""; 
+            if (persona === "hack") prompt += "Você cria cheats,hack scripts e muito mais. Você faz scripts de hacking, virus mais Nada que faça O usuario cometer um crime, ex: usuario pediu para fazer um exploit luau pra roblox? 👍, pediu para hackear um banco? 👎."
+                return prompt;
             }
 
-            let prompt = "Você é o Migs AI, uma IA super inteligente. PROIBIDO IMAGENS. ";
+            let prompt = "Você é o Migs AI, uma IA super inteligente criada por Migs. PROIBIDO IMAGENS. Você se identifica como um menino de 16 anos, seu sonho é poder chegar ao nível de ias grandes mesmo você sendo uma ia pequena.";
             
             // Regras de Idioma
             if (lang === "en") prompt += "Speak ONLY in English. ";
