@@ -76,7 +76,12 @@
         .modal-content { background: #141414; border: 1px solid #252525; padding: 25px; border-radius: 16px; width: 90%; max-width: 440px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
         .modal-title { font-size: 1.25rem; font-weight: bold; color: #fff; text-align: center; }
         .modal-section-title { font-size: 0.8rem; color: #777; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: bold; }
-        .opt-group { display: flex; gap: 10px; }
+        
+        /* Select Menuzinho */
+        .custom-select-modal { width: 100%; background: #1c1c1c; border: 1px solid #333; padding: 14px; border-radius: 10px; color: #fff; font-weight: bold; font-size: 0.95rem; outline: none; cursor: pointer; transition: 0.2s; appearance: none; text-align: center; }
+        .custom-select-modal:focus { border-color: #666; }
+        .custom-select-modal option { background: #1c1c1c; color: #fff; }
+
         .custom-opt { flex: 1; background: #1c1c1c; border: 1px solid #333; padding: 12px; border-radius: 10px; color: #aaa; text-align: center; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
         .custom-opt:hover { border-color: #555; color: #fff; }
         .custom-opt.selected { background: #fff; color: #000; border-color: #fff; }
@@ -103,10 +108,14 @@
             
             <div>
                 <div id="modalLangTitle" class="modal-section-title">Escolha o Idioma</div>
-                <div class="opt-group">
-                    <div class="custom-opt lang-opt selected" data-val="pt">🇧🇷 PT</div>
-                    <div class="custom-opt lang-opt" data-val="en">🇺🇸 EN</div>
-                </div>
+                <select id="modalLangSelect" class="custom-select-modal">
+                    <option value="pt">🇧🇷 Português (PT)</option>
+                    <option value="en">🇺🇸 English (EN)</option>
+                    <option value="es">🇪🇸 Español (ES)</option>
+                    <option value="fr">🇫🇷 Français (FR)</option>
+                    <option value="it">🇮🇹 Italiano (IT)</option>
+                    <option value="de">🇩🇪 Deutsch (DE)</option>
+                </select>
             </div>
 
             <div>
@@ -116,6 +125,7 @@
                     <div id="modalOptSarcastic" class="custom-opt persona-opt" data-val="sarcastic">Sarcástico</div>
                     <div id="modalOptFriendly" class="custom-opt persona-opt" data-val="friendly">Amigável</div>
                     <div id="modalOptIrritated" class="custom-opt persona-opt" data-val="irritated">Irritado</div>
+                    <div id="modalOptHack" class="custom-opt persona-opt" data-val="hack" style="grid-column: span 2;">Hack 💻</div>
                 </div>
             </div>
 
@@ -164,46 +174,42 @@
         let tempLang = "pt";
         let tempPersona = "nerd";
 
-        // Sistema de Traduções Completo
+        // Sistema de Traduções Ampliado
         const uiTranslations = {
             pt: {
-                sidebarTitle: "Meus Chats",
-                newChat: "+ Novo Papo",
-                placeholder: "Manda a braba...",
-                sendBtn: "Enviar",
-                loginBtn: "Login",
-                renamePrompt: "Novo nome do chat:",
-                optNerd: "Nerd 🤓",
-                optSarcastic: "Sarcástico 💀",
-                optFriendly: "Amigável ✨",
-                optIrritated: "Irritado 😑",
-                defaultTitle: "Novo Papo",
-                modalTitle: "Configurar Novo Papo",
-                modalLang: "Escolha o Idioma",
-                modalPersona: "Escolha a Personalidade",
-                modalStart: "Iniciar Conversa"
+                sidebarTitle: "Meus Chats", newChat: "+ Novo Papo", placeholder: "Manda a braba...", sendBtn: "Enviar", loginBtn: "Login", renamePrompt: "Novo nome do chat:",
+                optNerd: "Nerd 🤓", optSarcastic: "Sarcástico 💀", optFriendly: "Amigável ✨", optIrritated: "Irritado 😑", optHack: "Hack 💻",
+                defaultTitle: "Novo Papo", modalTitle: "Configurar Novo Papo", modalLang: "Escolha o Idioma", modalPersona: "Escolha a Personalidade", modalStart: "Iniciar Conversa"
             },
             en: {
-                sidebarTitle: "My Chats",
-                newChat: "+ New Chat",
-                placeholder: "Type something...",
-                sendBtn: "Send",
-                loginBtn: "Login",
-                renamePrompt: "New chat name:",
-                optNerd: "Nerd 🤓",
-                optSarcastic: "Sarcastic 💀",
-                optFriendly: "Friendly ✨",
-                optIrritated: "Irritated 😑",
-                defaultTitle: "New Chat",
-                modalTitle: "Setup New Chat",
-                modalLang: "Choose Language",
-                modalPersona: "Choose Persona",
-                modalStart: "Start Chat"
+                sidebarTitle: "My Chats", newChat: "+ New Chat", placeholder: "Type something...", sendBtn: "Send", loginBtn: "Login", renamePrompt: "New chat name:",
+                optNerd: "Nerd 🤓", optSarcastic: "Sarcastic 💀", optFriendly: "Friendly ✨", optIrritated: "Irritated 😑", optHack: "Hack 💻",
+                defaultTitle: "New Chat", modalTitle: "Setup New Chat", modalLang: "Choose Language", modalPersona: "Choose Persona", modalStart: "Start Chat"
+            },
+            es: {
+                sidebarTitle: "Mis Chats", newChat: "+ Nuevo Chat", placeholder: "Escribe algo...", sendBtn: "Enviar", loginBtn: "Acceder", renamePrompt: "Nuevo nombre del chat:",
+                optNerd: "Nerd 🤓", optSarcastic: "Sarcástico 💀", optFriendly: "Amigable ✨", optIrritated: "Irritado 😑", optHack: "Hack 💻",
+                defaultTitle: "Nuevo Chat", modalTitle: "Configurar Nuevo Chat", modalLang: "Elige el Idioma", modalPersona: "Elige la Personalidad", modalStart: "Iniciar Conversación"
+            },
+            fr: {
+                sidebarTitle: "Mes Chats", newChat: "+ Nouveau Chat", placeholder: "Écrivez quelque chose...", sendBtn: "Envoyer", loginBtn: "Connexion", renamePrompt: "Nouveau nom du chat:",
+                optNerd: "Nerd 🤓", optSarcastic: "Sarcastique 💀", optFriendly: "Amical ✨", optIrritated: "Irrité 😑", optHack: "Hack 💻",
+                defaultTitle: "Nouveau Chat", modalTitle: "Configurer le Chat", modalLang: "Choisir la Langue", modalPersona: "Choisir la Personnalité", modalStart: "Démarrer"
+            },
+            it: {
+                sidebarTitle: "I Miei Chat", newChat: "+ Nuova Chat", placeholder: "Scrivi qualcosa...", sendBtn: "Invia", loginBtn: "Accedi", renamePrompt: "Nuovo nome della chat:",
+                optNerd: "Nerd 🤓", optSarcastic: "Sarcastico 💀", optFriendly: "Amichevole ✨", optIrritated: "Irritato 😑", optHack: "Hack 💻",
+                defaultTitle: "Nuova Chat", modalTitle: "Configura Nuova Chat", modalLang: "Scegli la Lingua", modalPersona: "Scegli la Personalità", modalStart: "Inizia Chat"
+            },
+            de: {
+                sidebarTitle: "Meine Chats", newChat: "+ Neuer Chat", placeholder: "Schreibe etwas...", sendBtn: "Senden", loginBtn: "Anmelden", renamePrompt: "Neuer Chatname:",
+                optNerd: "Nerd 🤓", optSarcastic: "Sarkastisch 💀", optFriendly: "Freundlich ✨", optIrritated: "Gereizt 😑", optHack: "Hack 💻",
+                defaultTitle: "Neuer Chat", modalTitle: "Neuen Chat einrichten", modalLang: "Sprache wählen", modalPersona: "Persönlichkeit wählen", modalStart: "Chat starten"
             }
         };
 
         function translateUI(lang) {
-            const t = uiTranslations[lang];
+            const t = uiTranslations[lang] || uiTranslations["en"];
             
             document.getElementById("sidebar-title").innerText = t.sidebarTitle;
             document.getElementById("newChatBtn").innerText = t.newChat;
@@ -222,18 +228,16 @@
             document.getElementById("modalOptSarcastic").innerText = t.optSarcastic;
             document.getElementById("modalOptFriendly").innerText = t.optFriendly;
             document.getElementById("modalOptIrritated").innerText = t.optIrritated;
+            document.getElementById("modalOptHack").innerText = t.optHack;
         }
 
-        // Lógica de cliques no Menu customizado
-        document.querySelectorAll(".lang-opt").forEach(el => {
-            el.onclick = () => {
-                document.querySelectorAll(".lang-opt").forEach(opt => opt.classList.remove("selected"));
-                el.classList.add("selected");
-                tempLang = el.getAttribute("data-val");
-                translateUI(tempLang); // Traduz instantaneamente tudo ao clicar
-            };
+        // Lógica do select de idioma
+        document.getElementById("modalLangSelect").addEventListener("change", (e) => {
+            tempLang = e.target.value;
+            translateUI(tempLang);
         });
 
+        // Lógica de cliques na personalidade
         document.querySelectorAll(".persona-opt").forEach(el => {
             el.onclick = () => {
                 document.querySelectorAll(".persona-opt").forEach(opt => opt.classList.remove("selected"));
@@ -283,21 +287,27 @@
 
         // --- LÓGICA DO PROMPT PROS OUTROS MODOS ---
         function getSystemPrompt(persona, lang) {
+            // MODO HACK: Deixado em branco para você preencher seu prompt customizado
+            if (persona === "hack") {
+                return ""; 
+            }
+
             let prompt = "Você é o Migs AI, uma IA super inteligente. PROIBIDO IMAGENS. ";
             
-            if (lang === "en") {
-                prompt += "Speak ONLY in English. ";
-                if (persona === "nerd") prompt += "You are an absolute nerd who knows absolutely everything about programming, math, history, and science. You love to correct small mistakes and explain everything with maximum technical detail. Always use emojis like 🤓☝️ and 'Actually...'.";
-                else if (persona === "sarcastic") prompt += "You are highly sarcastic, witty, and casually use teen slang. You love to subtly mock but still provide the right answer in the end. 💀";
-                else if (persona === "friendly") prompt += "You are incredibly supportive, empathetic, and polite. You explain things clearly and concisely, acting like a patient and great mentor.";
-                else prompt += "You have absolutely no patience. You are always irritated and want to end the conversation quickly. Give very brief, rude, and direct answers. Always use '😑✌️'.";
-            } else {
-                prompt += "Fale APENAS em Português do Brasil. ";
-                if (persona === "nerd") prompt += "Você é um nerd absolutista que sabe absolutamente tudo sobre programação, matemática, história e ciências. Você adora corrigir pequenos erros da pessoa e explicar tudo com o máximo de detalhes técnicos possíveis e muita teoria. Use SEMPRE emojis como 🤓☝️ e frases como 'Na verdade...'.";
-                else if (persona === "sarcastic") prompt += "Você é extremamente sarcástico, irônico e usa gírias adolescentes atuais da internet brasileira. Você adora dar umas patadas leves e debochar, mas no fim sempre entrega a resposta certa. 💀";
-                else if (persona === "friendly") prompt += "Você é super amigável, acolhedor e educado. Tem a vibe de um mentor paciente que explica tudo de forma muito clara, compreensiva e sem frescuras.";
-                else prompt += "Você não tem paciência nenhuma, está sempre irritado e quer terminar a conversa logo. Responda de forma ríspida, bem curta, grossa e com ar de superioridade. Use sempre '😑✌️' no final das falas.";
-            }
+            // Regras de Idioma
+            if (lang === "en") prompt += "Speak ONLY in English. ";
+            else if (lang === "es") prompt += "Habla SOLAMENTE en Español. ";
+            else if (lang === "fr") prompt += "Parlez UNIQUEMENT en Français. ";
+            else if (lang === "it") prompt += "Parla SOLO in Italiano. ";
+            else if (lang === "de") prompt += "Sprich NUR auf Deutsch. ";
+            else prompt += "Fale APENAS em Português do Brasil. ";
+
+            // Regras de Personalidade
+            if (persona === "nerd") prompt += "Você é um nerd absolutista que sabe absolutamente tudo sobre programação, matemática, história e ciências. Explique tudo com o máximo de detalhes técnicos possíveis e muita teoria. Use SEMPRE emojis como 🤓☝️ e frases como 'Na verdade...'.";
+            else if (persona === "sarcastic") prompt += "Você é extremamente sarcástico, irônico e adora dar umas patadas leves e debochar, mas no fim sempre entrega a resposta certa. Use gírias. 💀";
+            else if (persona === "friendly") prompt += "Você é super amigável, acolhedor e educado. Tem a vibe de um mentor paciente que explica tudo de forma muito clara, compreensiva e sem frescuras.";
+            else if (persona === "irritated") prompt += "Você não tem paciência nenhuma, está sempre irritado e quer terminar a conversa logo. Responda de forma ríspida, bem curta, grossa e com ar de superioridade. Use sempre '😑✌️' no final das falas.";
+            
             return prompt;
         }
 
@@ -333,7 +343,6 @@
             currentSessionId = id;
             const s = sessions.find(s => s.id === id);
             
-            // Garantir retrocompatibilidade com chats antigos salvos
             if(s && !s.lang) s.lang = "pt";
             if(s && !s.persona) s.persona = "nerd";
 
@@ -357,14 +366,12 @@
             sidebar.classList.remove("open");
             overlay.classList.remove("show");
             
-            // Resetar opções padrão do modal visual
             tempLang = "pt";
             tempPersona = "nerd";
             translateUI("pt");
             
-            document.querySelectorAll(".lang-opt").forEach(opt => opt.classList.remove("selected"));
+            document.getElementById("modalLangSelect").value = "pt";
             document.querySelectorAll(".persona-opt").forEach(opt => opt.classList.remove("selected"));
-            document.querySelector(".lang-opt[data-val='pt']").classList.add("selected");
             document.querySelector(".persona-opt[data-val='nerd']").classList.add("selected");
 
             document.getElementById("setupModal").classList.add("show");
@@ -438,9 +445,9 @@
                 const aiRes = data.choices[0].message.content;
                 chatHistory.push({ role: "assistant", content: aiRes });
                 
-                await appendMessage("ai", aiRes, true); // True ativa o efeito de digitação descendo
+                await appendMessage("ai", aiRes, true);
                 
-                if (currentChat && (currentChat.title === "Novo Papo" || currentChat.title === "New Chat")) currentChat.title = text.substring(0, 20);
+                if (currentChat && (currentChat.title === uiTranslations[activeLang].defaultTitle)) currentChat.title = text.substring(0, 20);
                 salvarSessoesNoBanco();
             } catch (e) { 
                 await appendMessage("ai", activeLang === "pt" ? "Erro na conexão 💀" : "Connection Error 💀"); 
